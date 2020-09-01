@@ -12,18 +12,6 @@ const TR = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
 let CR = {};
 
 /**
- * Helper funcs
- * Convert between {d1:n, d2:m, ...} <=> [d1 n-times, d2 m-times, ...]
- * eg, {25:2, 50:1, 100:2} <=> [25, 25, 50, 100, 100]
- */
-const cash2arr = cash => Object.entries(cash).map(
-    e => Array(e[1]).fill(e[0])
-).flat();
-const arr2cash = arr => arr.reduce(
-    (acc, e) => (acc[e] ? acc[e]++ : (acc[e] = 1), acc), {}
-);
-
-/**
  * @param cash { denom1: count1, denom2: count2, ... }
  */
 const sumCash = cash => Object.entries(cash).reduce((acc, e) => acc + e[0] * e[1], 0);
@@ -45,21 +33,21 @@ const addCash = (cr, cash) => {
  * @return object {
  *      cr: register after +cash/-change
  *      change: the change in the CR format
- *      fail: if transcation failed (eg. no change)
+ *      status: transcation status (eg. TR.NO_CHANGE)
  * }
  */
-const transcation = (cr, cash) => {
+const transcation = (cr, cash, price) => {
     const totalCashGiven = sumCash(cash);
-    const totalChange = totalCashGiven - PRICE;
+    const totalChange = totalCashGiven - price;
     if (0 > totalChange) {
-        return {cr, change: {}, fail: TR.INSUFFICIENT};
+        return {cr, change: {}, status: TR.INSUFFICIENT};
     }
     const ncr = addCash(cr, cash);
     if (0 == totalChange) {
-        return {cr: ncr, change: {}, fail: TR.OK };
+        return {cr: ncr, change: {}, status: TR.OK };
     }
     
     
     
-    return {cr, change: {}, fail: TR.FAIL};
+    return {cr, change: {}, status: TR.FAIL};
 }
