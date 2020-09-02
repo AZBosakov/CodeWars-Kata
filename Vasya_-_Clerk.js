@@ -26,6 +26,7 @@ const sumCash = cash => Object.entries(cash).reduce(
 const addCash = (cr, cash) => Object.entries(cash).reduce(
     (acc, [d, c]) => {
         acc[d] = (acc[d] || 0) + c;
+        if (acc[d] < 0) throw new Error(`Negative value in Cash register, denom.: ${d}, count added: ${c}`);
         return acc;
     }, {...cr}
 );
