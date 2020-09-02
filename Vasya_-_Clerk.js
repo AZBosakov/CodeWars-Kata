@@ -14,18 +14,21 @@ let CR = {};
 /**
  * @param cash { denom1: count1, denom2: count2, ... }
  */
-const sumCash = cash => Object.entries(cash).reduce((acc, e) => acc + e[0] * e[1], 0);
+const sumCash = cash => Object.entries(cash).reduce(
+    (acc, e) => acc + e[0] * e[1], 0
+);
 
 /**
  * @param cr the cash register
  * @param cash the money given
  * @return object the updated register
  */
-const addCash = (cr, cash) => {
-    const ncr = {...cr};
-    Object.entries(cash).forEach(([d, c]) => ncr[d] = (ncr[d] || 0) + c)
-    return ncr;
-}
+const addCash = (cr, cash) => Object.entries(cash).reduce(
+    (acc, [d, c]) => {
+        acc[d] = (acc[d] || 0) + c;
+        return acc;
+    }, {...cr}
+);
 
 /**
  * @param cr the cash register
@@ -40,7 +43,7 @@ const transcation = (cr, cash, price) => {
     const totalCashGiven = sumCash(cash);
     const totalChange = totalCashGiven - price;
     if (0 > totalChange) {
-        return {cr, change: {}, status: TR.INSUFFICIENT};
+        return {cr, change: cash, status: TR.INSUFFICIENT};
     }
     const ncr = addCash(cr, cash);
     if (0 == totalChange) {
@@ -49,5 +52,5 @@ const transcation = (cr, cash, price) => {
     
     
     
-    return {cr, change: {}, status: TR.FAIL};
+    return {cr, change: cash, status: TR.FAIL};
 }
