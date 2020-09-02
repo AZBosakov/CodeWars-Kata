@@ -12,10 +12,15 @@ const TR = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
 let CR = {};
 
 /**
+ * Sum the cash object up, incl. to the maxDenom denomation
+ * 
  * @param cash { denom1: count1, denom2: count2, ... }
+ * @param maxDenom ignore denominations above this
+ * 
+ * @return float
  */
-const sumCash = cash => Object.entries(cash).reduce(
-    (acc, e) => acc + e[0] * e[1], 0
+const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cash).reduce(
+    (acc, e) => acc + (e[0] > maxDenom ? 0 : e[0] * e[1]), 0
 );
 
 /**
