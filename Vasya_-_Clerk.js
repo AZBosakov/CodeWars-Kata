@@ -28,7 +28,7 @@ const PAY = Object.freeze(
 /**
  * Round 2 Decimal Place
  * 
- * NOTE to self: Use at least when subtracting non-int floats
+ * NOTE to self: Use when mul/sub non-int floats
  * 
  * @param float num - the number to be rounded
  * @return float - the number rounded to dec. places
@@ -100,7 +100,7 @@ const pay = (cr, cash, price) => {
         return {cr, change: cash, status: PAY.NO_CHANGE};
     }
     // Try to combine the different denominations in the cr to match the change
-    const changeEntries = _combineDenoms(
+    const changeEntries = __combineDenoms(
         Object.entries(cr_bc).filter(e => e[0] <= totalChange).sort(([a], [b]) => b - a),
         totalChange
     );
@@ -124,17 +124,17 @@ const pay = (cr, cash, price) => {
  * @param float target
  * @return object|false - combination of denominations | failure
  */
-const _combineDenoms = (denoms, target) => {
+const __combineDenoms = (denoms, target) => {
+    target = r2dp(target);
     const [d_c, ...smaller] = denoms;
     const denom = d_c[0];
     let count = Math.min(d_c[1], Math.floor(target / denom));
     
-    if (denom * count == target) return [[denom, count]];
+    if (r2dp(denom * count) == target) return [[denom, count]];
     if (! smaller.length) return false;
     
     for (count; count >= 0; count--) {
-        let newTarget = target - denom * count;
-        let entries = _combineDenoms(smaller, newTarget);
+        let entries = _combineDenoms(smaller, target - denom * count);
         if (entries) return count ? [[denom, count], ...entries] : entries;
     }
     
