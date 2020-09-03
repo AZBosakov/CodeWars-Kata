@@ -16,8 +16,10 @@ const PRICE = 25;
 const DECIMAL_PRECISION = 2;
 
 // Payment status codes
-const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
-    (acc, e, i) => (acc[e] = i, acc), {}
+const PAY = Object.freeze(
+    'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
+        (acc, e, i) => (acc[e] = i, acc), {}
+    )
 );
 
 // All cash objects are in format: { denom1: count1, denom2: count2, ... }
@@ -52,7 +54,7 @@ const normalize = cashObj => Object.entries(cashObj).reduce(
  * @return float
  */
 const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cash).reduce(
-    (acc, [d, c]) => acc + (d > maxDenom ? 0 : d * c), 0
+    (acc, [d, c]) => r2dp(acc + (d > maxDenom ? 0 : d * c)), 0
 );
 // } Utils
 
@@ -68,7 +70,7 @@ const addCash = (cr, cash) => Object.entries(cash).reduce(
         acc[+d] = (acc[+d] || 0) + c;
         if (acc[d] < 0) throw new Error(`Negative value in Cash register, denom.: ${d}, count added: ${c}`);
         return acc;
-    }, {...cr}
+    }, normalize(cr)
 );
 
 /**
