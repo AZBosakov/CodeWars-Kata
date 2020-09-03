@@ -26,7 +26,7 @@ const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cas
  */
 const addCash = (cr, cash) => Object.entries(cash).reduce(
     (acc, [d, c]) => {
-        acc[d] = (acc[+d] || 0) + c;
+        acc[+d] = (acc[+d] || 0) + c;
         if (acc[d] < 0) throw new Error(`Negative value in Cash register, denom.: ${d}, count added: ${c}`);
         return acc;
     }, {...cr}
@@ -74,6 +74,10 @@ const transcation = (cr, cash, price) => {
  * @return object|false - combination of denominations | failure
  */
 const _tryComb = (denoms, target) => {
+    const [d_c, ...smaller] = denoms;
+    const denom = d_c[0];
+    const count = Math.min(d_c[1], Math.floor(target / denom));
+    if (denom * count == target) return [denom, count];
     
     
     return false;
