@@ -122,7 +122,7 @@ const pay = (cr, cash, price) => {
  * 
  * @param array denoms - Object.entries of the cr with denom. up to target, sorted descending!
  * @param float target
- * @return object|false - combination of denominations | failure
+ * @return array|false - combination of denominations | failure
  */
 const __combineDenoms = (denoms, target) => {
     target = r2dp(target);
@@ -134,7 +134,7 @@ const __combineDenoms = (denoms, target) => {
     if (! smaller.length) return false;
     
     for (count; count >= 0; count--) {
-        let entries = _combineDenoms(smaller, target - denom * count);
+        let entries = __combineDenoms(smaller, target - denom * count);
         if (entries) return count ? [[denom, count], ...entries] : entries;
     }
     
