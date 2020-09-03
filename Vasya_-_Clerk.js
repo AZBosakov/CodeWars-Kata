@@ -1,3 +1,6 @@
+/**
+ * More generic algo than the Kata requires, works with any denominations.
+ */
 const PRICE = 25;
 
 // Payment status codes
@@ -109,4 +112,12 @@ const tickets = peopleInLine => {
         cr = payment.cr;
     }
     return 'YES';
+}
+
+// Apparently CodeWars needs a polyfill...
+// QnD - no checks, etc.
+if (! Object.fromEntries) {
+    Object.fromEntries = function(es) {
+        return es.reduce((acc, [p, v]) => (acc[p] = v, acc), {});
+    }
 }
