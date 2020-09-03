@@ -1,7 +1,7 @@
 const PRICE = 25;
 
-// Transcation status codes
-const TR = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
+// Payment status codes
+const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
     (acc, e, i) => (acc[e] = i, acc), {}
 );
 
@@ -9,7 +9,7 @@ const TR = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
 let CR = {};
 
 /**
- * Sum the cash object up, incl., to the maxDenom denomation
+ * Sum the cash object up to, incl., the maxDenom denomination
  * 
  * @param object cash - { denom1: count1, denom2: count2, ... }
  * @param float maxDenom - ignore denominations above this
@@ -20,6 +20,8 @@ const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cas
 );
 
 /**
+ * Can subtract too, but not bellow 0
+ * 
  * @param object cr - the cash register
  * @param object cash - the money given
  * @return object - the updated register
@@ -39,37 +41,45 @@ const addCash = (cr, cash) => Object.entries(cash).reduce(
  * @return object {
  *      cr: register after +cash/-change
  *      change: the change in the CR format
- *      status: payment status (eg. TR.NO_CHANGE)
+ *      status: payment status (eg. PAY.NO_CHANGE)
  * }
  */
 const payment = (cr, cash, price) => {
     const totalCashGiven = sumCash(cash);
     const totalChange = totalCashGiven - price;
     if (0 > totalChange) { // Too few money given
-        return {cr, change: cash, status: TR.INSUFFICIENT};
+        return {cr, change: cash, status: PAY.INSUFFICIENT};
     }
-    const ncr = addCash(cr, cash);
+    // CR Before Change
+    const cr_bc = addCash(cr, cash);
     if (0 == totalChange) { // Exact price given
-        return {cr: ncr, change: {}, status: TR.OK };
+        return {cr: cr_bc, change: {}, status: PAY.OK };
     }
-    if (sumCash(ncr, totalChange) < totalChange) { // Not enough money in smaller denoms.
-        return {cr, change: cash, status: TR.NO_CHANGE};
+    if (sumCash(cr_bc, totalChange) < totalChange) { // Not enough money in smaller denoms.
+        return {cr, change: cash, status: PAY.NO_CHANGE};
     }
     // Try to combine the different denominations in the cr to match the change
     const changeEntries = _combineDenoms(
-        Object.entries(ncr).filter(e => e[0] <= totalChange).sort(([a], [b]) => b - a);
+        Object.entries(cr_bc).filter(e => e[0] <= totalChange).sort(([a], [b]) => b - a),
         totalChange
     );
     if (! changeEntries) {
-        return {cr, change: cash, status: TR.NO_CHANGE};
+        return {cr, change: cash, status: PAY.NO_CHANGE};
     }
-    
-    
-    return {cr, change: cash, status: TR.FAIL};
+    return {
+        cr: addCash(
+            cr_bc,
+            Object.fromEntries(changeEntries.map(([d, c]) => [d, -c])) // Invert count to subtract
+        ),
+        change: Object.fromEntries(changeEntries),
+        status: PAY.OK
+    };
 }
 
 /**
- * @param array denoms - Object.entries of the cr with denom. up to target, sorted descending
+ * Recursively combine smaller denominations
+ * 
+ * @param array denoms - Object.entries of the cr with denom. up to target, sorted descending!
  * @param float target
  * @return object|false - combination of denominations | failure
  */
@@ -78,16 +88,14 @@ const _combineDenoms = (denoms, target) => {
     const denom = d_c[0];
     let count = Math.min(d_c[1], Math.floor(target / denom));
     
-    if (denom * count == target) return [denom, count];
+    if (denom * count == target) return [[denom, count]];
     if (! smaller.length) return false;
     
     for (count; count >= 0; count--) {
         let newTarget = target - denom * count;
-        let 
+        let entries = _combineDenoms(smaller, newTarget);
+        if (entries) return count ? [[denom, count], ...entries] : entries;
     }
-    
-    
-    
     
     return false;
 }
