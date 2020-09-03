@@ -5,7 +5,8 @@ const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
     (acc, e, i) => (acc[e] = i, acc), {}
 );
 
-// Carsh Register: { denom1: count1, denom2: count2, ... }
+// Carsh Register
+// All cash objects are in format: { denom1: count1, denom2: count2, ... }
 let CR = {};
 
 /**
@@ -44,7 +45,7 @@ const addCash = (cr, cash) => Object.entries(cash).reduce(
  *      status: payment status (eg. PAY.NO_CHANGE)
  * }
  */
-const payment = (cr, cash, price) => {
+const pay = (cr, cash, price) => {
     const totalCashGiven = sumCash(cash);
     const totalChange = totalCashGiven - price;
     if (0 > totalChange) { // Too few money given
@@ -77,7 +78,7 @@ const payment = (cr, cash, price) => {
 }
 
 /**
- * Recursively combine smaller denominations
+ * Recursively combine progressively smaller denominations
  * 
  * @param array denoms - Object.entries of the cr with denom. up to target, sorted descending!
  * @param float target
@@ -98,4 +99,14 @@ const _combineDenoms = (denoms, target) => {
     }
     
     return false;
+}
+
+// Test function
+const tickets = peopleInLine => {
+    for (let bNote of peopleInLine) {
+        const payment = pay(CR, {+bNote: 1}, PRICE);
+        if (payment.status != PAY.OK) return 'NO';
+        CR = payment.cr;
+    }
+    return 'YES';
 }
