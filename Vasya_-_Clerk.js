@@ -5,9 +5,7 @@ const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
     (acc, e, i) => (acc[e] = i, acc), {}
 );
 
-// Carsh Register
 // All cash objects are in format: { denom1: count1, denom2: count2, ... }
-let CR = {};
 
 /**
  * Sum the cash object up to, incl., the maxDenom denomination
@@ -103,10 +101,12 @@ const _combineDenoms = (denoms, target) => {
 
 // Test function
 const tickets = peopleInLine => {
+    // the cash register
+    let cr = {};
     for (let bNote of peopleInLine) {
-        const payment = pay(CR, {+bNote: 1}, PRICE);
+        const payment = pay(cr, {[+bNote]: 1}, PRICE);
         if (payment.status != PAY.OK) return 'NO';
-        CR = payment.cr;
+        cr = payment.cr;
     }
     return 'YES';
 }
