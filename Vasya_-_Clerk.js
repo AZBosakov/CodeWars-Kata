@@ -1,7 +1,19 @@
 /**
- * More generic algo than the Kata requires, works with any denominations.
+ * More generic algo than the Kata requires,
+ * can calculate change with any denomination combos,
+ * not just single banknote.
+ * The change calculation algo is the heuristics of a human clerk - 
+ * trying the combine the change from the bigger denominations first
  */
+
 const PRICE = 25;
+
+/**
+ * F***king rounding errors - 1 - 0.9 != 0.1,
+ * so round to small number of dec. places,
+ * eg. 2 for cents
+ */
+const DECIMAL_PRECISION = 2;
 
 // Payment status codes
 const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
@@ -9,6 +21,28 @@ const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
 );
 
 // All cash objects are in format: { denom1: count1, denom2: count2, ... }
+
+// Utils {
+/**
+ * Round 2 Decimal Place
+ * 
+ * NOTE to self: Use at least when subtracting non-int floats
+ * 
+ * @param float num - the number to be rounded
+ * @return float - the number rounded to dec. places
+ */
+const r2dp = num => +num.toFixed(DECIMAL_PRECISION);
+
+/**
+ * Normalize denomination counts
+ * 
+ * Merges
+ * '0100'/'00100'/etc. into '100' or
+ * '0.20'/0.2/'00.20' into '0.2'
+ */
+const normalize = cashObj => Object.entries(cashObj).reduce(
+    (acc, [d, c]) => (acc[+d] = (acc[+d] || 0) + c, acc), {}
+);
 
 /**
  * Sum the cash object up to, incl., the maxDenom denomination
@@ -20,13 +54,14 @@ const PAY = 'OK NO_CHANGE INSUFFICIENT FAIL'.split(/\s+/).reduce(
 const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cash).reduce(
     (acc, [d, c]) => acc + (d > maxDenom ? 0 : d * c), 0
 );
+// } Utils
 
 /**
- * Can subtract too, but not bellow 0
+ * Can subtract too, but not bellow 0 count of a given denom.
  * 
  * @param object cr - the cash register
  * @param object cash - the money given
- * @return object - the updated register
+ * @return object - the merged register+cash
  */
 const addCash = (cr, cash) => Object.entries(cash).reduce(
     (acc, [d, c]) => {
@@ -41,14 +76,16 @@ const addCash = (cr, cash) => Object.entries(cash).reduce(
  * @param object cash - the money given
  * @param float price - the requested price
  * @return object {
- *      cr: register after +cash/-change
- *      change: the change in the CR format
- *      status: payment status (eg. PAY.NO_CHANGE)
+ *      cr: {...} - register after +cash/-change
+ *      change: {...} - the change in the CR format
+ *      status: int - payment status (eg. PAY.NO_CHANGE)
  * }
  */
 const pay = (cr, cash, price) => {
+    cr = normalize(cr);
+    cash = normalize(cash);
     const totalCashGiven = sumCash(cash);
-    const totalChange = totalCashGiven - price;
+    const totalChange = r2dp(totalCashGiven - price);
     if (0 > totalChange) { // Too few money given
         return {cr, change: cash, status: PAY.INSUFFICIENT};
     }
@@ -102,7 +139,7 @@ const _combineDenoms = (denoms, target) => {
     return false;
 }
 
-// Test function
+// Kata Test function
 const tickets = peopleInLine => {
     // the cash register
     let cr = {};
@@ -115,7 +152,7 @@ const tickets = peopleInLine => {
 }
 
 // Apparently CodeWars needs a polyfill...
-// QnD - no checks, etc.
+// Q&D - no checks, etc.
 if (! Object.fromEntries) {
     Object.fromEntries = function(es) {
         return es.reduce((acc, [p, v]) => (acc[p] = v, acc), {});
