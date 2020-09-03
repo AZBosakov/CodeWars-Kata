@@ -11,12 +11,12 @@ let CR = {};
 /**
  * Sum the cash object up, incl., to the maxDenom denomation
  * 
- * @param object cash { denom1: count1, denom2: count2, ... }
- * @param float maxDenom ignore denominations above this
+ * @param object cash - { denom1: count1, denom2: count2, ... }
+ * @param float maxDenom - ignore denominations above this
  * @return float
  */
 const sumCash = (cash, maxDenom = Number.MAX_SAFE_INTEGER) => Object.entries(cash).reduce(
-    (acc, e) => acc + (e[0] > maxDenom ? 0 : e[0] * e[1]), 0
+    (acc, [d, c]) => acc + (d > maxDenom ? 0 : d * c), 0
 );
 
 /**
@@ -39,10 +39,10 @@ const addCash = (cr, cash) => Object.entries(cash).reduce(
  * @return object {
  *      cr: register after +cash/-change
  *      change: the change in the CR format
- *      status: transcation status (eg. TR.NO_CHANGE)
+ *      status: payment status (eg. TR.NO_CHANGE)
  * }
  */
-const transcation = (cr, cash, price) => {
+const payment = (cr, cash, price) => {
     const totalCashGiven = sumCash(cash);
     const totalChange = totalCashGiven - price;
     if (0 > totalChange) { // Too few money given
@@ -56,7 +56,7 @@ const transcation = (cr, cash, price) => {
         return {cr, change: cash, status: TR.NO_CHANGE};
     }
     // Try to combine the different denominations in the cr to match the change
-    const changeEntries = _tryComb(
+    const changeEntries = _combineDenoms(
         Object.entries(ncr).filter(e => e[0] <= totalChange).sort(([a], [b]) => b - a);
         totalChange
     );
@@ -69,15 +69,24 @@ const transcation = (cr, cash, price) => {
 }
 
 /**
- * @param array denoms - Object.entries of the cr with denom up to target, sorted descending
+ * @param array denoms - Object.entries of the cr with denom. up to target, sorted descending
  * @param float target
  * @return object|false - combination of denominations | failure
  */
-const _tryComb = (denoms, target) => {
+const _combineDenoms = (denoms, target) => {
     const [d_c, ...smaller] = denoms;
     const denom = d_c[0];
-    const count = Math.min(d_c[1], Math.floor(target / denom));
+    let count = Math.min(d_c[1], Math.floor(target / denom));
+    
     if (denom * count == target) return [denom, count];
+    if (! smaller.length) return false;
+    
+    for (count; count >= 0; count--) {
+        let newTarget = target - denom * count;
+        let 
+    }
+    
+    
     
     
     return false;
