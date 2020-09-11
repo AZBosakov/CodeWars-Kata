@@ -25,19 +25,19 @@ const permutationGenerator = function(arr) {
      * .sort() won't change it to [o0, o0, o1, o1, o2],
      * but after mapping it to [0, 1, 0, 2, 1], it can be sorted
      */
-    const current = preSort.map(e => els.get(e)).sort((a, b) => a - b);
+    const currentPerm = preSort.map(e => els.get(e)).sort((a, b) => a - b);
     
-    
-    
-    // BitWidth
-    const BW = 32;
+    // Spare myself rounding errors, using >> for / and & for %
+    const log32 = 5, mod32 = 0x1f;
     // Bitfield of directions 0:<, 1:>
-    const dir = new Uint32Array(Math.ceil(eIdx.length / BW))
+    const dir = new Uint32Array((eIdx.length >> log32) + 1);
     // map index to element
     const idx2el = idx => eIdx[idx];
     // } INIT
     
-    console.table(current.map(e => ([eIdx[e], e])));
+    
+    console.log(currentPerm.map(n => eIdx[n])) // TODO temporary output instead of yield
+//     console.table(currentPerm.map(e => ([eIdx[e], e])));
     
     
 }
