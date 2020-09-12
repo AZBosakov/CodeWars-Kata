@@ -1,11 +1,13 @@
-
-const permutationGenerator = function(arr) {
+/**
+ * @param array arr - The items to be permuted
+ * @return Iterator - the permutations, starting with the lowest lexicographicaly
+ */
+const permutationGenerator = function* (arr) {
     if (arr.length < 2) return arr;
-    // INIT {
     const preSort = [...arr].sort();
     /**
      * Normalization:
-     * Associate a consequtive number with each distinct element (0-based).
+     * Map a consequtive number to each distinct element (0-based).
      * Duplicate elements map to the same number (the array index of eIdx[]).
      * This way, the algo always operates on numbers in range 0..num_dist-1
      * Numbers are assigned in the order of occurence, hence the preSort,
@@ -26,18 +28,9 @@ const permutationGenerator = function(arr) {
      * but after mapping it to [0, 1, 0, 2, 1], it can be sorted
      */
     const currentPerm = preSort.map(e => els.get(e)).sort((a, b) => a - b);
-    
-    // Spare myself rounding errors, using >> for / and & for %
-    const log32 = 5, mod32 = 0x1f;
-    // Bitfield of directions 0:<, 1:>
-    const dir = new Uint32Array((eIdx.length >> log32) + 1);
     // map index to element
     const idx2el = idx => eIdx[idx];
-    // } INIT
-    
-    
-    console.log(currentPerm.map(n => eIdx[n])) // TODO temporary output instead of yield
-//     console.table(currentPerm.map(e => ([eIdx[e], e])));
+    yield currentPerm.map(idx2el);
     
     
 }
