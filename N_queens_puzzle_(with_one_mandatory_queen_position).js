@@ -1,5 +1,13 @@
 const DEBUG = {
-    attacked: arr => arr.map(e => e.toString(2).replace('-', '')).join("\n"),
+    attacked: arr => console.log(
+        arr.map(e => {
+            let bin = '';
+            for (let i = 0; i < 32; i++) {
+                bin += ( (e & (1 << i)) >>> i );
+            }
+            return bin;
+        }).join("\n")
+    ),
 };
 
 /**
@@ -26,7 +34,7 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     if (4 > size) return false;
     
     // Mark the highest bits above 'size' as attacked
-    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >> (31 - s));
+    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >>> (31 - size));
     const attacked = (new Uint32Array(size)).fill(maxSafeCols);
     
     const fixQueenRow = fixQueen ? fixQueen[0] : -1;
