@@ -1,3 +1,7 @@
+const DEBUG = {
+    attacked: arr => arr.map(e => e.toString(2).replace('-', '')).join("\n"),
+};
+
 /**
  * Solve N-queens for n <= 32
  * 
@@ -14,26 +18,27 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     const JS_INT_BITS = 32;
     if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
     
-    if (1 > size || ) throw new Error(`Invalid size: ${size}. Must be positive int`);
+    if (1 > size) throw new Error(`Invalid size: ${size}. Must be positive int`);
     
     if (fixQueen[0] > size || fixQueen[1] > size) throw new Error(`Invalid position: ${position}`);
     
     if (1 == size) return [0,0];
     if (4 > size) return false;
     
-    const attackedInit = new Uint32Array(size);
+    // Mark the highest bits above 'size' as attacked
+    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >> (31 - s));
+    const attacked = (new Uint32Array(size)).fill(maxSafeCols);
+    
     const fixQueenRow = fixQueen ? fixQueen[0] : -1;
     const fixQueenCol = fixQueen ? (1 << fixQueen[1]) : 0;
     
     // Mark the squares, attacked by the fixed queen, if given
-    if (fixQueen) {
-        for (let i = 0; i < attackedInit.length; i++) {
-            let diff = i - fixQueenRow;
-            if (diff) {
-                attackedInit[i] |= fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff);
-            }
+    if (fixQueen) attacked.forEach((e, i, arr) => {
+        let diff = i - fixQueenRow;
+        if (diff) {
+            attacked[i] |= fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff);
         }
-    }
+    });
     
-    
+    DEBUG.attacked(attacked);
 }
