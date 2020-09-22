@@ -29,7 +29,7 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     
     if (fixQueen[0] > size || fixQueen[1] > size) throw new Error(`Invalid position: ${position}`);
     
-    if (1 == size) return [0,0];
+    if (1 == size) return [0];
     if (4 > size) return false;
     
     // Mark the highest bits above 'size' as attacked
