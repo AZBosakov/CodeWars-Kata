@@ -49,7 +49,17 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
         }
     });
     
-    
-    
-    DEBUG.attacked(attacked);
+    const placeQueen = (queenRow, attackedSq) => {
+        let row = attackedSq[0];
+        const lowerRows = attackedSq.slice(1);
+        // No safe square - row is all 1s == -1
+        if (!~row) return false;
+        if (fixQueenRow == queenRow) {
+            // If on last row
+            if (! lowerRows.length) return [fixQueenCol];
+            const lowerQueens = placeQueen(queenRow + 1, lowerRows);
+            return lowerQueens ? [fixQueenCol, ...lowerQueens] : false;
+        }
+        
+    }
 }
