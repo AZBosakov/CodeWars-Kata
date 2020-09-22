@@ -1,13 +1,3 @@
-const DEBUG = {
-    bitmap: arr => [...arr].map(e => {
-        let bin = '';
-        for (let i = 0; i < 32; i++) {
-            
-            bin += ( (e & (1 << i)) >>> i );
-        }
-        return bin;
-    }).join("\n"),
-};
 
 /**
  * Solve N-queens for n <= 32
@@ -82,5 +72,5 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     
     const result = placeQueen(0, attackedInit);
     if (! result) return false;
-    
+    return result.map((e, i) => ([i, Math.log2(e)]));
 }
