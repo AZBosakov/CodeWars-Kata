@@ -1,8 +1,9 @@
 const DEBUG = {
     attacked: arr => console.log(
-        arr.map(e => {
+        [...arr].map(e => {
             let bin = '';
             for (let i = 0; i < 32; i++) {
+                
                 bin += ( (e & (1 << i)) >>> i );
             }
             return bin;
@@ -34,7 +35,7 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     if (4 > size) return false;
     
     // Mark the highest bits above 'size' as attacked
-    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >>> (31 - size));
+    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >> (31 - size));
     const attacked = (new Uint32Array(size)).fill(maxSafeCols);
     
     const fixQueenRow = fixQueen ? fixQueen[0] : -1;
@@ -42,11 +43,13 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     
     // Mark the squares, attacked by the fixed queen, if given
     if (fixQueen) attacked.forEach((e, i, arr) => {
-        let diff = i - fixQueenRow;
+        let diff = Math.abs(i - fixQueenRow);
         if (diff) {
-            attacked[i] |= fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff);
+            arr[i] |= (fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff));
         }
     });
+    
+    
     
     DEBUG.attacked(attacked);
 }
