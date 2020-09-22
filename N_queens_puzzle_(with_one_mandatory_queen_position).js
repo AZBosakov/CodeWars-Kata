@@ -11,12 +11,14 @@
  * and pass the marked sqares for the next queen. If the lower queens placement fails,
  * try the next safe square on the row and repeat the above.
  * 
+ * If successful, returns array of type [qRow_0_col, qRow_1_col, qRow_2_col, ...]
+ * 
  * NOTE: Haven't compared performance with other algorythms,
  * but on my ancient Celleron E3300 / Chrome 80 solves 30 queens in ~15 sec
  * 
  * @param int size : 1..32 - The size of the board - size x size
  * @param array|false fixQueen - The [row, col] (0-based) of the fixed queen if given
- * @return array|false - The array of fixQueens' positions or false if no solution
+ * @return array|false - The array of queens' positions or false if no solution
  */
 const nQueenSolver_max32 = (size, fixQueen = false) => {
     // Rows will be represented as bitfields of unsafe squares, so max 32 cols
@@ -72,5 +74,5 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     
     const result = placeQueen(0, attackedInit);
     if (! result) return false;
-    return result.map((e, i) => ([i, Math.log2(e)]));
+    return result.map(e => Math.log2(e));
 }
