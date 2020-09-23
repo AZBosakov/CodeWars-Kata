@@ -1,3 +1,9 @@
+/**
+ * UPDATE: Did compare this with other solutions, found some that are
+ * both faster (10s of times) AND more traditional. A bit of premature optimization
+ * from my side, I guess. Well, most of the solutions I tested were slower,
+ * some 100s, 1000s of times slower than this, so I consider it not-so-failed experiment :)
+ */
 
 /**
  * Solve N-queens for n <= 32
