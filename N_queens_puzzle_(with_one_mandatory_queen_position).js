@@ -3,7 +3,7 @@
  * Solve N-queens for n <= 32
  * 
  * Return a single solution of the N-queens if any or false otherwise.
- * Artificialy limited to max. size 32 - the bit width of a JS int - 
+ * Limited to max. size 32 - the bit width of a JS int - 
  * due to the chosen algo. for checking safe squares.
  * 
  * Recursively places queens on safe squares on subsequent rows.
@@ -21,7 +21,7 @@
  * @return array|false - The array of queens' positions or false if no solution
  */
 const nQueenSolver_max32 = (size, fixQueen = false) => {
-    // Rows will be represented as bitfields of unsafe squares, so max 32 cols
+    // Rows will be represented as bitfields of attacked squares, so max 32 cols
     const JS_INT_BITS = 32;
     if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
     
@@ -32,7 +32,7 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     if (1 == size) return [0];
     if (4 > size) return false;
     
-    // Mark the highest bits above 'size' as attacked
+    // Mark the bits above 'size' as attacked
     const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >> (31 - size));
     const attackedInit = (new Uint32Array(size)).fill(maxSafeCols);
     
@@ -75,4 +75,16 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     const result = placeQueen(0, attackedInit);
     if (! result) return false;
     return result.map(e => Math.log2(e));
+}
+
+// Kata test function
+const queens = (position, size) => {
+    const files = 'abcdefghijklmnopqrstuvwxyz';
+    
+    const file0based = files.indexOf(position[0]);
+    const rank0based = ((position[1]|0) + 9) % 10;
+    
+    const solution = nQueenSolver_max32(size, [rank0based, file0based]);
+    if (! solution) return false;
+    return solution.map((f, r) => `${files[f]}${(r+1) % 10}`).join(',');
 }
