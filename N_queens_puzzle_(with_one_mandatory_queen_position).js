@@ -31,9 +31,6 @@
  */
 const nQueenSolver_max32 = (size, fixQueen = false) => {
     // Rows will be represented as bitfields of attacked squares, so max 32 cols
-    
-    console.log('SOLVER', size, fixQueen);
-    
     const JS_INT_BITS = 32;
     const MAX_BIT = JS_INT_BITS - 1;
     if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
@@ -48,9 +45,6 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     // Mark the bits above 'size' as attacked
     const initSafe = JS_INT_BITS == size ? 0 : ((1 << MAX_BIT) >> (MAX_BIT - size));
     const attackedInit = (new Uint32Array(size)).fill(initSafe);
-    
-    console.log([...attackedInit].map(e => (e & 0x1f).toString(2).replace(1,'')).join("\n"));
-    
     const fixQueenRow = fixQueen ? fixQueen[0] : -1;
     const fixQueenCol = fixQueen ? (1 << fixQueen[1]) : 0;
     
@@ -61,16 +55,8 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
             arr[i] |= (fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff));
         }
     });
-    
-    
-    console.log([...attackedInit].map(e => (e & 0x1f).toString(2).replace(1,'')).join("\n"));
-    
-    
     const placeQueen = (queenRow, attackedSqs) => {
         let row = attackedSqs[0];
-        
-        console.log([...attackedSqs].map(e => (e & 0x1f).toString(2).replace(1,'')).join("\n"));
-        
         // If the fixed queen
         if (fixQueenRow == queenRow) {
             // If on the last row
@@ -86,7 +72,6 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
             for (let i = lowerRows.length; i--; ) {
                 let d = i + 1;
                 lowerRows[i] |= ((safe << d) | safe | (safe >>> d));
-//                 if (!~lowerRows[i]) return false;
             }
             const lowerQueens = placeQueen(queenRow + 1, lowerRows);
             if (lowerQueens) return [safe, ...lowerQueens];
@@ -103,9 +88,6 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
 // Kata test function
 const queens = (position, size) => {
     const files = 'abcdefghijklmnopqrstuvwxyz';
-    
-    console.log(files);
-    
     const file0based = files.indexOf(position[0]);
     const rank0based = ((position[1]|0) + 9) % 10;
     
