@@ -72,7 +72,9 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
             const lowerRows = attackedSqs.slice(1)
             for (let i = lowerRows.length; i--; ) {
                 let d = i + 1;
-                lowerRows[i] |= ((safe << d) | safe | (safe >>> d));
+                if (!
+                    ~(lowerRows[i] |= ((safe << d) | safe | (safe >>> d)))
+                ) return false;
             }
             const lowerQueens = placeQueen(queenRow + 1, lowerRows);
             if (lowerQueens) return [safe, ...lowerQueens];
