@@ -4,7 +4,8 @@
  * 
  * Return a single solution of the N-queens if any or false otherwise.
  * Limited to max. size 32 - the bit width of a JS int - 
- * due to the chosen algo. for checking safe squares.
+ * due to the chosen algo. for checking safe squares -
+ * attacked ones are represented as a bitmap.
  * 
  * Recursively places queens on safe squares on subsequent rows.
  * On each placement, marks the lower rows' squares, attacked by this queen,
@@ -23,6 +24,7 @@
 const nQueenSolver_max32 = (size, fixQueen = false) => {
     // Rows will be represented as bitfields of attacked squares, so max 32 cols
     const JS_INT_BITS = 32;
+    const MAX_BIT = JS_INT_BITS - 1;
     if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
     
     if (1 > size) throw new Error(`Invalid size: ${size}. Must be positive int`);
@@ -33,8 +35,9 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
     if (4 > size) return false;
     
     // Mark the bits above 'size' as attacked
-    const maxSafeCols = JS_INT_BITS == size ? 0 : ((1 << 31) >> (31 - size));
-    const attackedInit = (new Uint32Array(size)).fill(maxSafeCols);
+    const attackedInit = (new Uint32Array(size)).fill(
+        JS_INT_BITS == size ? 0 : ((1 << MAX_BIT) >> (MAX_BIT - size))
+    );
     
     const fixQueenRow = fixQueen ? fixQueen[0] : -1;
     const fixQueenCol = fixQueen ? (1 << fixQueen[1]) : 0;
@@ -47,20 +50,20 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
         }
     });
     
-    const placeQueen = (queenRow, attackedSq) => {
-        let row = attackedSq[0];
+    const placeQueen = (queenRow, attackedSqs) => {
+        let row = attackedSqs[0];
         // If the fixed queen
         if (fixQueenRow == queenRow) {
-            // If on last row
-            if (1 == attackedSq.length) return [fixQueenCol];
-            const lowerQueens = placeQueen(queenRow + 1, attackedSq.slice(1));
+            // If on the last row
+            if (1 == attackedSqs.length) return [fixQueenCol];
+            const lowerQueens = placeQueen(queenRow + 1, attackedSqs.slice(1));
             return lowerQueens ? [fixQueenCol, ...lowerQueens] : false;
         }
         let safe = 0;
         while (safe = (~row & (row + 1))) {
-            if (1 == attackedSq.length) return [safe];
+            if (1 == attackedSqs.length) return [safe];
             // Mark the squares on the lower rows attacked by this queen
-            const lowerRows = attackedSq.slice(1)
+            const lowerRows = attackedSqs.slice(1)
             for (let i = lowerRows.length; i--; ) {
                 let d = i + 1;
                 lowerRows[i] |= ((safe << d) | safe | (safe >>> d));
