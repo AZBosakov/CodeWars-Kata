@@ -1,96 +1,82 @@
 /**
- * UPDATE: Did compare this with other solutions, found some that are
- * both faster (10s of times) AND more traditional. Well, most of the solutions I tested were slower,
- * some 100s, 1000s of times slower than this, so I consider it not-so-failed experiment :)
+ * A slightly modified version of my previous solution - 5x faster.
+ * 30 queens in ~3 sec on my ancient Celleron E3300 / Chrome 80
  */
 
-
 /**
- * Solve N-queens for n <= 32
+ * Solve N-queens for n <= 32 (backtracking)
  * 
  * Return a single solution of the N-queens if any or false otherwise.
  * Limited to max. size 32 - the bit width of a JS int - 
  * due to the chosen algo. for checking safe squares -
  * attacked ones are represented as a bitmap.
  * 
- * Recursively tries to places queens on safe squares on subsequent rows.
- * On each placement, marks the next row squares, attacked by this queen,
+ * Recursively tries to places queens on safe squares on subsequent ranks.
+ * On each placement, marks the next rank squares, attacked by this queen,
  * and pass the marked sqares for the next queen. If the following queens placement fails,
- * try the next safe square on the row and repeat the above.
+ * try the next safe square on the rank.
  * 
- * If successful, returns array of type [qRow_0_col, qRow_1_col, qRow_2_col, ...]
- * 
- * NOTE: Haven't compared performance with other algorythms,
- * but on my ancient Celleron E3300 / Chrome 80 solves 30 queens in ~15 sec
+ * If successful, returns array of type [rank0_file, rank1_file, rank2_file, ...]
  * 
  * @param int size : 1..32 - The size of the board - size x size
- * @param array|false fixQueen - The [row, col] (0-based) of the fixed queen if given
+ * @param array|false fixQueen - The [rank, file] (0-based) of the fixed queen if given
  * @return array|false - The array of queens' positions or false if no solution
  */
 const nQueenSolver_max32 = (size, fixQueen = false) => {
-    // Rows will be represented as bitfields of attacked squares, so max 32 cols
+    // Ranks will be represented as bitfields of attacked squares, so max 32 files
     const JS_INT_BITS = 32;
     const MAX_BIT = JS_INT_BITS - 1;
-    if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
     
+    if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
     if (1 > size) throw new Error(`Invalid size: ${size}. Must be positive int`);
     
-    if (fixQueen[0] > size || fixQueen[1] > size) throw new Error(`Invalid position: ${position}`);
+    const LAST_Q = size - 1;
+    if (fixQueen[0] > LAST_Q || fixQueen[1] > LAST_Q) throw new Error(`Invalid position: ${position}`);
     
     if (1 == size) return [0];
     if (4 > size) return false;
     
-    // Mark the bits above 'size' as attacked
+    // Mark the bits above 'LAST_Q' as attacked
     const initSafe = JS_INT_BITS == size ? 0 : ((1 << MAX_BIT) >> (MAX_BIT - size));
     const attackedInit = (new Uint32Array(size)).fill(initSafe);
-    const fixQueenRow = fixQueen ? fixQueen[0] : -1;
-    const fixQueenCol = fixQueen ? (1 << fixQueen[1]) : 0;
+    const fixQRank = fixQueen ? fixQueen[0] : -1;
+    const fixQFile = fixQueen ? (1 << fixQueen[1]) : 0;
     
     // Mark the squares, attacked by the fixed queen, if given
     if (fixQueen) attackedInit.forEach((e, i, arr) => {
-        let diff = Math.abs(i - fixQueenRow);
+        let diff = Math.abs(i - fixQRank);
         if (diff) {
-            arr[i] |= (fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff));
+            arr[i] |= (fixQFile | (fixQFile << diff) | (fixQFile >>> diff));
         }
     });
     
-    const LAST_Q = size - 1;
-    
-    // (QueenRank, LeftDiagS, FileS, RightDiagS)
-    // --- /// |||| \\\\
+    /**
+     *  =, ///, ||||, \\\\
+     * (QueenRank, LeftDiagS, FileS, RightDiagS)
+     * lds, fs, rds - the squares on this rank, attacked by the previously placed queens
+     */
     const placeQueen = (qr, lds, fs, rds) => {
-        
-        
-        
-        
-        
-        
-        // OLD
-        let row = attackedSqs[0];
-        // If the fixed queen
-        if (fixQueenRow == queenRow) {
-            // If on the last row
-            if (1 == attackedSqs.length) return [fixQueenCol];
-            const lowerQueens = placeQueen(queenRow + 1, attackedSqs.slice(1));
-            return lowerQueens ? [fixQueenCol, ...lowerQueens] : false;
+        if (fixQRank == qr) {
+            if (LAST_Q == qr) return [fixQFile];
+            const nextQs = placeQueen(qr + 1,
+                ((lds | fixQFile) << 1), (fs | fixQFile), ((rds | fixQFile) >>> 1)
+            );
+            return nextQs ? [fixQFile, ...nextQs] : false;
         }
+        let attacked = attackedInit[qr] | lds | fs | rds;
         let safe = 0;
-        while (safe = (~row & (row + 1))) {
-            if (1 == attackedSqs.length) return [safe];
-            // Mark the squares on the lower rows attacked by this queen
-            const lowerRows = attackedSqs.slice(1)
-            for (let i = lowerRows.length; i--; ) {
-                let d = i + 1;
-                lowerRows[i] |= ((safe << d) | safe | (safe >>> d));
-            }
-            const lowerQueens = placeQueen(queenRow + 1, lowerRows);
-            if (lowerQueens) return [safe, ...lowerQueens];
-            row |= safe;
+        while (safe = (~attacked & (attacked + 1))) {
+            if (LAST_Q == qr) return [safe];
+            const nextQs = placeQueen(qr + 1,
+                ((lds | safe) << 1), (fs | safe), ((rds | safe) >>> 1)
+            );
+            if (nextQs) return [safe, ...nextQs];
+            attacked |= safe;
         }
         return false;
     }
     
-    const result = placeQueen(0, attackedInit);
+    const result = placeQueen(0, 0, 0, 0);
     if (! result) return false;
     return result.map(e => Math.log2(e));
 }
