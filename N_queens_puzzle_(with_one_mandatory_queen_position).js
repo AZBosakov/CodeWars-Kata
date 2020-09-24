@@ -4,7 +4,6 @@
  * some 100s, 1000s of times slower than this, so I consider it not-so-failed experiment :)
  */
 
-// UPDATE 2: ~2x speedup by an early exit: 30qs in < 7sec
 
 /**
  * Solve N-queens for n <= 32
@@ -14,16 +13,15 @@
  * due to the chosen algo. for checking safe squares -
  * attacked ones are represented as a bitmap.
  * 
- * Recursively places queens on safe squares on subsequent rows.
- * On each placement, marks the lower rows' squares, attacked by this queen,
- * and pass the marked sqares for the next queen. If the lower queens placement fails,
+ * Recursively tries to places queens on safe squares on subsequent rows.
+ * On each placement, marks the next row squares, attacked by this queen,
+ * and pass the marked sqares for the next queen. If the following queens placement fails,
  * try the next safe square on the row and repeat the above.
  * 
  * If successful, returns array of type [qRow_0_col, qRow_1_col, qRow_2_col, ...]
  * 
  * NOTE: Haven't compared performance with other algorythms,
  * but on my ancient Celleron E3300 / Chrome 80 solves 30 queens in ~15 sec
- * UPD: in < 7 sec after early exit
  * 
  * @param int size : 1..32 - The size of the board - size x size
  * @param array|false fixQueen - The [row, col] (0-based) of the fixed queen if given
@@ -55,7 +53,19 @@ const nQueenSolver_max32 = (size, fixQueen = false) => {
             arr[i] |= (fixQueenCol | (fixQueenCol << diff) | (fixQueenCol >>> diff));
         }
     });
-    const placeQueen = (queenRow, attackedSqs) => {
+    
+    const LAST_Q = size - 1;
+    
+    // (QueenRank, LeftDiagS, FileS, RightDiagS)
+    // --- /// |||| \\\\
+    const placeQueen = (qr, lds, fs, rds) => {
+        
+        
+        
+        
+        
+        
+        // OLD
         let row = attackedSqs[0];
         // If the fixed queen
         if (fixQueenRow == queenRow) {
