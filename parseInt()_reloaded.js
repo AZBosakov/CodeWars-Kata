@@ -37,7 +37,7 @@ const parserCreator = (shortScale = true) => {
     // 'token_name' => {type: T_..., value: ...}
     const tokens = new Map();
     // token creator helper
-    const $ = (type, value) => ({type, value});
+    const $ = (type, value) => ({type, value, expects: following[type]});
     // T_START
     tokens.set(-1, $(T_START, 0));
     // T_ZERO
@@ -74,17 +74,27 @@ const parserCreator = (shortScale = true) => {
     // T_STOP
     tokens.set(null, $(T_STOP, 0));
     
-    The parse function
-    return string => {
-        string = string.toLowerCase();
-        // Filter non-words at the begining/end if any, split the words,
-        const tokens = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
-            // normalize the plurals (thousandS -> thousand), and REVERSE
-            .map(e => e.match(/^(.*?)s?$/)[1]).reverse(); // Parse from smallest to biggest
-            .push(null); // add a T_STOP at the end
-        
-        let curToken = $(T_START, null);
-        
-        
-    }
+    return tokens; //TESTING
+    
+//     // The parser function
+//     return string => {
+//         string = string.toLowerCase();
+//         // Filter non-words at the begining/end if any, split the words,
+//         const tokenNames = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
+//             // normalize the plurals (thousandS -> thousand), and REVERSE
+//             .map(e => e.match(/^(.*?)s?$/)[1]).reverse(); // Parse from smallest to biggest
+//             .push(null); // add a T_STOP at the end
+//         
+//         const comas = []; // 12,345,678,901
+//         const coma = 0;
+//         let lastToken = $(T_START, null);
+//         let sign = 1;
+//         let mulHundred = false;
+//         for (let tn of tokenNames) {
+//             const token = tokens.get(tn);
+//             if (! token) throw new Error(`Undefined token: ${tn}`);
+// //             if (! (token.type & lastToken))
+//         }
+//         
+//     }
 }
