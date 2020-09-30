@@ -2,6 +2,8 @@
  * Create the parseInt() function for the corresponding scale:
  * https://en.wikipedia.org/wiki/Names_of_large_numbers
  * 
+ * A bit more capable than the Kata requirements.
+ * 
  * @param bool shortScale - the names of the powers of 10 to use
  * @return function - the integer description parser
  */
@@ -57,7 +59,7 @@ const parseIntCreator = (shortScale = true) => {
     tokens.set('hundred', $(T_HUNDRED, 100));
     // T_10E3N
     // Up to 'trillion', both scales are 3n degs. of 10 step
-    // The value for the token is the degree of 10 / 3
+    // The value for the token is the (degree of 10) / 3
     ('thousand million ' +
         (shortScale ? 'billion' : 'milliard billion billiard') + 
     ' trillion').split(/\W+/).forEach((t, i) => tokens.set(t, $(T_10E3N, i+1)));
@@ -88,13 +90,12 @@ const parseIntCreator = (shortScale = true) => {
             ).reverse(); // Parse from smallest to biggest
         tokenNames.push(null); // add a T_STOP at the end
         
-        console.log(tokenNames);
-        
         const comas = [0]; // [42, 137, , 53, 21] => 21,053,000,137,042
         let coma = 0;
         let lastToken = $(T_START, null);
         let sign = 1;
         let mulHundred = false;
+        
         for (let tn of tokenNames) {
             const token = tokens.get(tn);
             if (! token) throw new Error(`Undefined token: ${tn}`);
@@ -131,12 +132,13 @@ const parseIntCreator = (shortScale = true) => {
                     sign = -1;
                     break;
             }
+            
             lastToken = token;
         }
         if (lastToken.expects) throw new Error(`Malformed description: ${string}`);
         
-        console.log(comas);
-        
         return comas.reduce((acc, e, i) => acc + e * 10**(i*3), 0) * sign;
     }
 }
+
+const parseInt = parseIntCreator();
