@@ -17,13 +17,13 @@ const parserCreator = (shortScale = true) => {
     const T_10E3N   = 1 << 7; // 'thousand': 10**(3*1), 'million': 10**(3*2), ...
     const T_MINUS   = 1 << 8; // 'minus'
     
-    const T_STOP    = 1 << 31; // null
+    const T_STOP    = 1 << 31; // null, used to clear the expected token type
     // } Token types
     
     // START from the RIGT to LEFT - smallest to biggest; FOLLOWs to the LEFT!
     const following = {
         [T_START]:      T_ZERO | T_DIGIT | T_TEEN | T_TENS | T_HUNDRED | T_10E3N,
-        [T_ZERO]:       T_STOP,
+        [T_ZERO]:       T_MINUS | T_STOP,
         [T_DIGIT]:      T_TENS | T_AND | T_HUNDRED | T_10E3N | T_MINUS | T_STOP,
         [T_TEEN]:       T_AND | T_HUNDRED | T_10E3N | T_MINUS | T_STOP,
         [T_TENS]:       T_AND | T_HUNDRED | T_10E3N | T_MINUS | T_STOP,
@@ -38,8 +38,7 @@ const parserCreator = (shortScale = true) => {
     const tokens = new Map();
     // token creator helper
     const $ = (type, value) => ({type, value, expects: following[type]});
-    // T_START
-    tokens.set(-1, $(T_START, 0));
+    
     // T_ZERO
     tokens.set('zero', $(T_ZERO, 0));
     // T_DIGIT
@@ -76,25 +75,26 @@ const parserCreator = (shortScale = true) => {
     
     return tokens; //TESTING
     
-//     // The parser function
-//     return string => {
-//         string = string.toLowerCase();
-//         // Filter non-words at the begining/end if any, split the words,
-//         const tokenNames = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
-//             // normalize the plurals (thousandS -> thousand), and REVERSE
-//             .map(e => e.match(/^(.*?)s?$/)[1]).reverse(); // Parse from smallest to biggest
-//             .push(null); // add a T_STOP at the end
-//         
-//         const comas = []; // 12,345,678,901
-//         const coma = 0;
-//         let lastToken = $(T_START, null);
-//         let sign = 1;
-//         let mulHundred = false;
-//         for (let tn of tokenNames) {
-//             const token = tokens.get(tn);
-//             if (! token) throw new Error(`Undefined token: ${tn}`);
-// //             if (! (token.type & lastToken))
-//         }
-//         
-//     }
+    // The parser function
+    return string => {
+        string = string.toLowerCase();
+        // Filter non-words at the begining/end if any, split the words,
+        const tokenNames = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
+            // normalize the plurals (thousandS -> thousand), and REVERSE
+            .map(e => e.match(/^(.*?)s?$/)[1]).reverse() // Parse from smallest to biggest
+            .push(null); // add a T_STOP at the end
+        
+        const comas = []; // 12,345,678,901
+        const coma = 0;
+        let lastToken = $(T_START, null);
+        let sign = 1;
+        let mulHundred = false;
+        for (let tn of tokenNames) {
+            const token = tokens.get(tn);
+            if (! token) throw new Error(`Undefined token: ${tn}`);
+            if (! (token.type & lastToken.expects)) throw new Error(`Unexpected token: ${tn}`);
+
+        }
+        if (lastToken.expects) throw new Error(`Malformed description: ${string}`);
+    }
 }
