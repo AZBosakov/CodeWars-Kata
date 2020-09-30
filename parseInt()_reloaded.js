@@ -36,58 +36,55 @@ const parserCreator = (shortScale = true) => {
     };
     // 'token_name' => {type: T_..., value: ...}
     const tokens = new Map();
-    (() => {
-        // token creator helper, in the closure
-        const $ = (type, value) => ({type, value});
-        // T_START
-        tokens.set(-1, $(T_START, 0));
-        // T_ZERO
-        tokens.set('zero', $(T_ZERO, 0));
-        // T_DIGIT
-        'one two three four five six seven eight nine'
-            .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_DIGIT, i+1)));
-        // T_TEEN
-        `ten eleven twelve thirteen fourteen
-        fifteen sixteen seventeen eighteen nineteen`
-            .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_TEEN, i+10)));
-        // T_TENS
-        `twenty thirty forty fifty sixty seventy eighty ninety`
-            .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_TENS, (i+2)*10)));
-        // T_AND
-        tokens.set('and', $(T_AND, 0));
-        // T_HUNDRED
-        tokens.set('hundred', $(T_HUNDRED, 100));
-        // T_10E3N
-        // Up to 'trillion', both scales are 3n degs. of 10 step
-        // The value for the token is the degree of 10 / 3
-        ('thousand million ' +
-            (shortScale ? 'billion' : 'milliard billion billiard') + 
-        ' trillion').split(/\W+/).forEach((t, i) => tokens.set(t, $(T_10E3N, i+1)));
-        // After 'trillion' long scale is with step 6 -> 2*n
-        const mul = shortScale ? 1 : 2;
-        const offset = shortScale ? 5 : 8;
-        `quadrillion quintillion sextillion septillion octillion nonillion
-        decillion undecillion duodecillion tredecillion quattuordecillion quindecillion
-        sexdecillion septendecillion octodecillion novemdecillion vigintillion`
-            .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_10E3N, (i*mul)+offset)));
-        // T_MINUS
-        tokens.set('minus', $(T_MINUS, -1));
-        // T_STOP
-        tokens.set(null, $(T_STOP, 0));
-    })();
+    // token creator helper
+    const $ = (type, value) => ({type, value});
+    // T_START
+    tokens.set(-1, $(T_START, 0));
+    // T_ZERO
+    tokens.set('zero', $(T_ZERO, 0));
+    // T_DIGIT
+    'one two three four five six seven eight nine'
+        .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_DIGIT, i+1)));
+    // T_TEEN
+    `ten eleven twelve thirteen fourteen
+    fifteen sixteen seventeen eighteen nineteen`
+        .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_TEEN, i+10)));
+    // T_TENS
+    `twenty thirty forty fifty sixty seventy eighty ninety`
+        .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_TENS, (i+2)*10)));
+    // T_AND
+    tokens.set('and', $(T_AND, 0));
+    // T_HUNDRED
+    tokens.set('hundred', $(T_HUNDRED, 100));
+    // T_10E3N
+    // Up to 'trillion', both scales are 3n degs. of 10 step
+    // The value for the token is the degree of 10 / 3
+    ('thousand million ' +
+        (shortScale ? 'billion' : 'milliard billion billiard') + 
+    ' trillion').split(/\W+/).forEach((t, i) => tokens.set(t, $(T_10E3N, i+1)));
+    // After 'trillion' long scale is with step 6 -> 2*n
+    const mul = shortScale ? 1 : 2;
+    const offset = shortScale ? 5 : 8;
+    `quadrillion quintillion sextillion septillion octillion nonillion
+    decillion undecillion duodecillion tredecillion quattuordecillion quindecillion
+    sexdecillion septendecillion octodecillion novemdecillion vigintillion`
+        .split(/\W+/).forEach((t, i) => tokens.set(t, $(T_10E3N, (i*mul)+offset)));
+    // T_MINUS
+    tokens.set('minus', $(T_MINUS, -1));
+    // T_STOP
+    tokens.set(null, $(T_STOP, 0));
     
-    return tokens; // TESTING
-    
-    // The parse function
-//     return string => {
-//         string = string.toLowerCase();
-//         // Filter non-words at the begining/end if any, split the words,
-//         const tokens = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
-//             // normalize the plurals (thousandS -> thousand), and REVERSE
-//             .map(e => e.match(/^(.*?)s?$/)[1]).reverse(); // Parse from smallest to biggest
-//             .push(null); // add a T_STOP at the end
-//         
-//         let curToken = tokens.get(-1);
-//         
-//     }
+    The parse function
+    return string => {
+        string = string.toLowerCase();
+        // Filter non-words at the begining/end if any, split the words,
+        const tokens = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
+            // normalize the plurals (thousandS -> thousand), and REVERSE
+            .map(e => e.match(/^(.*?)s?$/)[1]).reverse(); // Parse from smallest to biggest
+            .push(null); // add a T_STOP at the end
+        
+        let curToken = $(T_START, null);
+        
+        
+    }
 }
