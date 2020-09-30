@@ -5,7 +5,7 @@
  * @param bool shortScale - the names of the powers of 10 to use
  * @return function - the integer description parser
  */
-const parserCreator = (shortScale = true) => {
+const parseIntCreator = (shortScale = true) => {
     // Token types {
     const T_START   = 1 << 0; // RIGHT end of the descr.
     const T_ZERO    = 1 << 1; // 'zero' : 0
@@ -73,28 +73,68 @@ const parserCreator = (shortScale = true) => {
     // T_STOP
     tokens.set(null, $(T_STOP, 0));
     
-    return tokens; //TESTING
+//     return tokens; //TESTING
     
     // The parser function
     return string => {
         string = string.toLowerCase();
         // Filter non-words at the begining/end if any, split the words,
-        const tokenNames = string.match(/\W*([a-z ]*)/)[1].trim().split(/\W+/)
-            // normalize the plurals (thousandS -> thousand), and REVERSE
-            .map(e => e.match(/^(.*?)s?$/)[1]).reverse() // Parse from smallest to biggest
-            .push(null); // add a T_STOP at the end
+        const tokenNames = string.match(/\W*([a-z -]*)/)[1].trim().split(/\W+/)
+            // normalize the plurals (thousandS -> thousand), unless a token is defined with 's'
+            .map(
+                tn => tokens.get(tn) ? tn : tn.match(/^(.*?)s?$/)[1]
+            ).reverse(); // Parse from smallest to biggest
+        tokenNames.push(null); // add a T_STOP at the end
         
-        const comas = []; // 12,345,678,901
-        const coma = 0;
+        console.log(tokenNames);
+        
+        const comas = [0]; // [42, 137, , 53, 21] => 21,053,000,137,042
+        let coma = 0;
         let lastToken = $(T_START, null);
         let sign = 1;
         let mulHundred = false;
         for (let tn of tokenNames) {
             const token = tokens.get(tn);
             if (! token) throw new Error(`Undefined token: ${tn}`);
-            if (! (token.type & lastToken.expects)) throw new Error(`Unexpected token: ${tn}`);
-
+            if (! (token.type & lastToken.expects)) {
+                throw new Error(`Unexpected token: ${tn}`);
+            }
+            switch (token.type) {
+                case T_ZERO:
+                case T_AND:
+                    break;
+                case T_DIGIT:
+                    if (! mulHundred) {
+                        comas[coma] += token.value;
+                    } else {
+                        mulHundred = false;
+                        comas[coma] += token.value * 100;
+                    }
+                    break;
+                case T_TEEN:
+                case T_TENS:
+                    comas[coma] += token.value;
+                    break;
+                case T_HUNDRED:
+                    mulHundred = true;
+                    break;
+                case T_10E3N:
+                    if (token.value <= coma) {
+                        throw new Error(`Malformed description: smaller degree of 10 at left: ${tn}`);
+                    }
+                    coma = token.value;
+                    comas[coma] = 0;
+                    break;
+                case T_MINUS:
+                    sign = -1;
+                    break;
+            }
+            lastToken = token;
         }
         if (lastToken.expects) throw new Error(`Malformed description: ${string}`);
+        
+        console.log(comas);
+        
+        return comas.reduce((acc, e, i) => acc + e * 10**(i*3), 0) * sign;
     }
 }
