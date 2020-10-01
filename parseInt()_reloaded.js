@@ -81,7 +81,7 @@ const parseIntCreator = (shortScale = true) => {
     return string => {
         // Filter non-words at the begining/end if any
         string = string.toLowerCase().match(/\W*(.*)/)[1].match(/(.*[a-z])?.*/)[1];
-        if (! string) new Error(`Malformed description: ${string}`);
+        if (! string) throw new Error(`Malformed description: ${string}`);
         // split the words,
         const tokenNames = string.split(/\W+/)
             // normalize the plurals (thousandS -> thousand), unless a token is defined with 's'
