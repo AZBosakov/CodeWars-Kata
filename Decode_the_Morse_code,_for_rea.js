@@ -7,6 +7,7 @@
 const decodeBitsAdvanced = bits => {
     // Trim leading/trailing 0s
     bits = bits.match(/^0*((1.*?)?)0*$/)[1];
+    
 }
 
 
