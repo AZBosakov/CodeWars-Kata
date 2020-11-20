@@ -109,13 +109,14 @@ const interpret = code => {
     while(!terminate) {
         const [r, c] = IP;
         const char = grid[r][c];
-        if (char == STR_MODE) stringMode = !stringMode;
-        if (stringMode) {
-            push(char);
+        if (char == STR_MODE) {
+            stringMode = !stringMode;
         } else {
-            console.log(char);
-            
-            IS[char]();
+            if (stringMode) {
+                push(char);
+            } else {
+                IS[char]();
+            }
         }
         moveIP();
     }
