@@ -96,7 +96,7 @@ const interpret = code => {
         '$': pop0,
         '.': ([a] = pop0()) => output += a,
         ',': ([a] = pop0()) => output += String.fromCharCode(a),
-        '#': () => trampoline = true,
+        '#': moveIP,
         'p': ([r, c, v] = pop0(3)) => grid[r % gridSize.h][c % gridSize.w] = v,
         'g': ([r, c] = pop0(3)) => push(
             String(grid[r % gridSize.h][c % gridSize.w]).charCodeAt(0)
@@ -113,6 +113,8 @@ const interpret = code => {
         if (stringMode) {
             push(char);
         } else {
+            console.log(char);
+            
             IS[char]();
         }
         moveIP();
