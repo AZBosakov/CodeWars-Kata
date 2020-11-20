@@ -21,7 +21,9 @@ const interpret = code => {
         const lines = code.split("\n");
         // right-pad with spaces to make it rectangular, if it isn't already
         const maxW = Math.max(...lines.map(line => line.length));
-        return lines.map(l => (l + NOP.repeat(maxW - l.length)).split(''));
+        return lines.map(
+            l => (l + NOP.repeat(maxW - l.length)).split('')
+        );
     })();
     
     const gridSize = [
@@ -76,8 +78,8 @@ const interpret = code => {
         '+': ([a, b] = pop0(2)) => push(b + a),
         '-': ([a, b] = pop0(2)) => push(b - a),
         '*': ([a, b] = pop0(2)) => push(b * a),
-        '/': ([a, b] = pop0(2)) => push(a == 0 ? a : (b / a)|0),
-        '%': ([a, b] = pop0(2)) => push(a == 0 ? a : b % a),
+        '/': ([a, b] = pop0(2)) => push(a == 0 ? 0 : (b / a)|0),
+        '%': ([a, b] = pop0(2)) => push(a == 0 ? 0 : b % a),
         
         '!': ([a] = pop0()) => push((a == 0)|0),
         '`': ([a, b] = pop0(2)) => push((b > a)|0),
@@ -97,9 +99,9 @@ const interpret = code => {
         '.': ([a] = pop0()) => output += a,
         ',': ([a] = pop0()) => output += String.fromCharCode(a),
         '#': moveIP,
-        'p': ([r, c, v] = pop0(3)) => grid[r % gridSize.h][c % gridSize.w] = v,
+        'p': ([r, c, v] = pop0(3)) => grid[r % gridSize[0]][c % gridSize[1]] = v,
         'g': ([r, c] = pop0(3)) => push(
-            String(grid[r % gridSize.h][c % gridSize.w]).charCodeAt(0)
+            String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0)
         ),
         '@': () => terminate = true,
         [NOP]: () => {},
@@ -113,7 +115,7 @@ const interpret = code => {
             stringMode = !stringMode;
         } else {
             if (stringMode) {
-                push(char);
+                push(String(char).charCodeAt(0));
             } else {
                 IS[char]();
             }
