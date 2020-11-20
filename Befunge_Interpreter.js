@@ -89,7 +89,6 @@ const interpret = code => {
         '_': ([a] = pop0()) => a == 0 ? setDir.right() : setDir.left(),
         '|': ([a] = pop0()) => a == 0 ? setDir.down() : setDir.up(),
         
-        //[STR_MODE]: () => stringMode = !stringMode,
         ':': (a = peek()) => push(a === undefined ? 0 : a),
         '\\': ([a, b] = pop0(2)) => push(a, b),
         '$': pop0,
