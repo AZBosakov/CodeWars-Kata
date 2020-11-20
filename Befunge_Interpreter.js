@@ -100,7 +100,7 @@ const interpret = code => {
         ',': ([a] = pop0()) => output += String.fromCharCode(a),
         '#': moveIP,
         'p': ([r, c, v] = pop0(3)) => grid[r % gridSize[0]][c % gridSize[1]] = v,
-        'g': ([r, c] = pop0(3)) => push(
+        'g': ([r, c] = pop0(2)) => push(
             String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0)
         ),
         '@': () => terminate = true,
@@ -108,17 +108,26 @@ const interpret = code => {
     }
     // } Instruction Set
     
+    let infCycle = 500; // Inf. cycle protection
+    
     while(!terminate) {
+        terminate = --infCycle < 0; // Inf. cycle protection
         const [r, c] = IP;
         const char = grid[r][c];
         if (char == STR_MODE) {
             stringMode = !stringMode;
         } else {
+            console.group();
+            console.log('IP:',IP);
+            console.log(stack, char);
+            
             if (stringMode) {
                 push(String(char).charCodeAt(0));
             } else {
                 IS[char]();
             }
+            console.log(stack);
+            console.groupEnd()
         }
         moveIP();
     }
