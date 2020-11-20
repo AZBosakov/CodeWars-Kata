@@ -7,7 +7,6 @@ const interpret = code => {
     const stack = [];
     let IPdir = [1, 0];
     let stringMode = false;
-    let trampoline = false;
     let terminate = false;
     
     let output = '';
@@ -80,7 +79,7 @@ const interpret = code => {
         '_': ([a] = pop0()) => a == 0 ? dir.right() : dir.left(),
         '|': ([a] = pop0()) => a == 0 ? dir.down() : dir.up(),
         
-        [STR_MODE]: () => stringMode = !stringMode,
+        //[STR_MODE]: () => stringMode = !stringMode,
         ':': (a = peek()) => push(a === undefined ? 0 : a),
         '\\': ([a, b] = pop0(2)) => push(a, b),
         '$': pop0,
@@ -88,25 +87,11 @@ const interpret = code => {
         ',': ([a] = pop0()) => output += String.fromCharCode(a),
         '#': () => trampoline = true,
         'p': ([r, c, v] = pop0(3)) => grid[r % gridSize.h][c % gridSize.w] = v,
-        'g': ([r, c] = pop0(3)) => push(grid[r % gridSize.h][c % gridSize.w]),
-/*
-
-g A "get" call (a way to retrieve data in storage). Pop y and x, then push ASCII value of the character at that position in the program. ?????
-
-@ End program.
-
-(i.e. a space) No-op. Does nothing.
-
-*/
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        'g': ([r, c] = pop0(3)) => push(
+            String(grid[r % gridSize.h][c % gridSize.w]).charCodeAt(0)
+        ),
+        '@': () => terminate = true,
+        [NOP]: () => {},
     }
     // } Instruction Set
     
