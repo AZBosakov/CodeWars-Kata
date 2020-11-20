@@ -1,11 +1,14 @@
 /*
- * Not optimized for performance, instruction functions are
- * recreated on every call. But being in scope -> simpler to write.
+ * Instruction set functions are recreated on every call.
+ * But being in scope -> simpler to write.
+ * No error checks - expects valid code!
  */
 const interpret = code => {
-    const IP = [0, 0]; // [X, Y]
+    const IP = [0, 0]; // [row, col] - WARNING - swapped X,Y
     const stack = [];
-    let IPdir = [1, 0];
+    const M_H   = 1 << 0; // move 1:horiz., 0:vert.
+    const M_RD  = 1 << 1; // move 1:rigth/down, 0:left/up
+    let IPdir = M_H|M_RD;
     let stringMode = false;
     let terminate = false;
     
@@ -21,10 +24,10 @@ const interpret = code => {
         return lines.map(l => (l + NOP.repeat(maxW - l.length)).split(''));
     })();
     
-    const gridSize = {
-        w: grid[0].length,
-        h: grid.length,
-    }
+    const gridSize = [
+        grid.length,    // rows
+        grid[0].length, // cols
+    ];
     
     const push = (...e) => stack.push(...e);
     /*
@@ -42,15 +45,22 @@ const interpret = code => {
     
     /*
      * Get the value at the top of the stack.
-     * Can return undefined, if stack empty
+     * Can return undefined, if stack is empty
      */
     const peek = () => stack[stack.length - 1];
     
-    const dir = {
-        right: () => IPdir = [1, 0],
-        left: () => IPdir = [-1, 0],
-        down: () => IPdir = [0, 1],
-        up: () => IPdir = [0, -1],
+    const setDir = {
+        right: () => IPdir = M_H|M_RD,
+        left: () => IPdir = M_H,
+        down: () => IPdir = M_RD,
+        up: () => IPdir = 0,
+    }
+    
+    const moveIP = () => {
+        const coord = IPdir & M_H;
+        const cur = IP[coord];
+        const size = gridSize[coord];
+        IP[coord] = (cur + (IPdir & M_RD) - 1 + size) % size;
     }
     
     // Instruction Set {
@@ -70,14 +80,14 @@ const interpret = code => {
         '!': ([a] = pop0()) => push((a == 0)|0),
         '`': ([a, b] = pop0(2)) => push((b > a)|0),
         
-        '>': dir.right,
-        '<': dir.left,
-        '^': dir.up,
-        'v': dir.down,
+        '>': setDir.right,
+        '<': setDir.left,
+        '^': setDir.up,
+        'v': setDir.down,
         '?': () => Object.entries(dir)[(Math.random() * 100) & 3][1](),
         
-        '_': ([a] = pop0()) => a == 0 ? dir.right() : dir.left(),
-        '|': ([a] = pop0()) => a == 0 ? dir.down() : dir.up(),
+        '_': ([a] = pop0()) => a == 0 ? setDir.right() : setDir.left(),
+        '|': ([a] = pop0()) => a == 0 ? setDir.down() : setDir.up(),
         
         //[STR_MODE]: () => stringMode = !stringMode,
         ':': (a = peek()) => push(a === undefined ? 0 : a),
