@@ -54,6 +54,7 @@ const interpret = code => {
         left: () => IPdir = M_H,
         down: () => IPdir = M_RD,
         up: () => IPdir = 0,
+        random: () => IPdir = (Math.random() * 100) & (M_H|M_RD),
     }
     
     const moveIP = () => {
@@ -84,7 +85,7 @@ const interpret = code => {
         '<': setDir.left,
         '^': setDir.up,
         'v': setDir.down,
-        '?': () => Object.entries(dir)[(Math.random() * 100) & 3][1](),
+        '?': () => setDir.random,
         
         '_': ([a] = pop0()) => a == 0 ? setDir.right() : setDir.left(),
         '|': ([a] = pop0()) => a == 0 ? setDir.down() : setDir.up(),
@@ -105,7 +106,15 @@ const interpret = code => {
     // } Instruction Set
     
     while(!terminate) {
-        // TODO: instruction cycle
+        const [r, c] = IP;
+        const char = grid[r][c];
+        if (char == STR_MODE) stringMode = !stringMode;
+        if (stringMode) {
+            push(char);
+        } else {
+            IS[char]();
+        }
+        moveIP();
     }
     
     return output;
