@@ -61,6 +61,7 @@ const interpret = code => {
         const coord = IPdir & M_H;
         const cur = IP[coord];
         const size = gridSize[coord];
+        // IPdir & M_RD is either 2 or 0
         IP[coord] = (cur + (IPdir & M_RD) - 1 + size) % size;
     }
     
