@@ -108,17 +108,26 @@ const interpret = code => {
     }
     // } Instruction Set
     
+    let infCycle = 500; // Inf. cycle protection
+    
     while(!terminate) {
+        terminate = --infCycle < 0; // Inf. cycle protection
         const [r, c] = IP;
         const char = grid[r][c];
         if (char == STR_MODE) {
             stringMode = !stringMode;
         } else {
+            console.group();
+            console.log('IP:',IP);
+            console.log('S bef:', stack, char);
+            
             if (stringMode) {
                 push(String(char).charCodeAt(0));
             } else {
                 IS[char]();
             }
+            console.log('S aft:', stack);
+            console.groupEnd()
         }
         moveIP();
     }
