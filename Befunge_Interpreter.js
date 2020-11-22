@@ -88,7 +88,7 @@ const interpret = code => {
         '<': setDir.left,
         '^': setDir.up,
         'v': setDir.down,
-        '?': () => setDir.random,
+        '?': setDir.random,
         
         '_': ([a] = pop0()) => a == 0 ? setDir.right() : setDir.left(),
         '|': ([a] = pop0()) => a == 0 ? setDir.down() : setDir.up(),
