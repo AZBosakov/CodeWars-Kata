@@ -70,7 +70,7 @@ const interpret = code => {
     // Instruction Set {
     const IS = {
         // 0...9
-        ...Array.from(Array(10).keys()).reduce((acc, e) => {
+        ..."0123456789".split('').reduce((acc, e) => {
             acc[e] = () => push(e);
             return acc;
         }, {}),
@@ -108,27 +108,26 @@ const interpret = code => {
     }
     // } Instruction Set
     
-    let infCycle = 1000; // Inf. cycle protection
+//     let infCycle = 1000; // Inf. cycle protection
     
     while(!terminate) {
-        terminate = --infCycle < 0; // Inf. cycle protection
+//         terminate = --infCycle < 0; // Inf. cycle protection
         const [r, c] = IP;
         const char = grid[r][c];
-        console.group();
-        console.log('IP:',IP);
-        console.log('S bef:', stack, char);
+//         console.group();
+//         console.log('IP:',IP);
+//         console.log('S bef:', stack, char);
         if (char == STR_MODE) {
             stringMode = !stringMode;
         } else {
-            
             if (stringMode) {
                 push(String(char).charCodeAt(0));
             } else {
                 IS[char]();
             }
         }
-        console.log('S aft:', stack);
-        console.groupEnd()
+//         console.log('S aft:', stack);
+//         console.groupEnd()
         moveIP();
     }
     
