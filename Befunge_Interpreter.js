@@ -61,7 +61,7 @@ const interpret = code => {
     
     const get = (r, c) => String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0);
     
-    const put = (r, c, v) => grid[r % gridSize[0]][c % gridSize[1]] = v;
+    const put = (r, c, v) => grid[r % gridSize[0]][c % gridSize[1]] = String.fromCharCode(v);
     
     // Instruction Set {
     const IS = {
@@ -119,15 +119,9 @@ const interpret = code => {
     }
     // } Instruction Set
     
-    let infCycle = 1000; // Inf. cycle protection
-    
     while (running) {
-//         terminate = --infCycle < 0; // Inf. cycle protection
         const [r, c] = IP;
         const char = grid[r][c];
-//         console.group();
-//         console.log('IP:',IP);
-//         console.log('S bef:', stack, char);
         if (char == STR_MODE) {
             stringMode = !stringMode;
         } else {
@@ -137,9 +131,6 @@ const interpret = code => {
                 IS[char]();
             }
         }
-//         console.log('S aft:', stack);
-//         console.log(output);
-//         console.groupEnd();
         moveIP();
     }
     
