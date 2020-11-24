@@ -59,6 +59,10 @@ const interpret = code => {
         IP[coord] = (cur + (IPdir & M_RD) - 1 + size) % size;
     }
     
+    const get = (r, c) => String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0);
+    
+    const put = (r, c, v) => grid[r % gridSize[0]][c % gridSize[1]] = v;
+    
     // Instruction Set {
     const IS = {
         // 0-9 Push this number onto the stack.
@@ -105,11 +109,9 @@ const interpret = code => {
         // # Trampoline: Skip next cell.
         '#': moveIP,
         // p A "put" call (a way to store a value for later use). Pop y, x and v, then change the character at the position (x,y) in the program to the character with ASCII value v.
-        'p': ([r, c, v] = pop0(3)) => grid[r % gridSize[0]][c % gridSize[1]] = v,
+        'p': ([r, c, v] = pop0(3)) => put(r, c, v),
         // g A "get" call (a way to retrieve data in storage). Pop y and x, then push ASCII value of the character at that position in the program.
-        'g': ([r, c] = pop0(2)) => push(
-            String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0)
-        ),
+        'g': ([r, c] = pop0(2)) => push(get(r, c)),
         // @ End program.
         '@': () => running = false,
         // ' ' (space) No-op.
