@@ -39,11 +39,8 @@ const interpret = code => {
      */
     const pop0 = (count = 1) => {
         const els = stack.splice(-count).reverse();
-        const diff = count - els.length;
-        if (diff) {
-            return els.concat(Array(diff).fill(0));
-        }
-        return els;
+        const miss = count - els.length;
+        return miss ? els.concat(Array(miss).fill(0)) : els;
     }
     
     const setDir = {
@@ -74,9 +71,9 @@ const interpret = code => {
         '+': ([a, b] = pop0(2)) => push(b + a),
         '-': ([a, b] = pop0(2)) => push(b - a),
         '*': ([a, b] = pop0(2)) => push(b * a),
-        // if a == 0, push 0; int div
-        '/': ([a, b] = pop0(2)) => push(a == 0 ? 0 : (b / a)|0),
-        '%': ([a, b] = pop0(2)) => push(a == 0 ? 0 : b % a),
+        // int div; if div-by-0, push 0
+        '/': ([a, b] = pop0(2)) => push((b / a)|0),
+        '%': ([a, b] = pop0(2)) => push((b % a)|0),
         
         // ! Logical NOT: Pop a. If the value is zero, push 1; otherwise, push 0.
         '!': ([a] = pop0()) => push((a == 0)|0),
