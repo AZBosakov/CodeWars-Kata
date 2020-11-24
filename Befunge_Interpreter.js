@@ -9,8 +9,8 @@ const interpret = code => {
     const M_H   = 1 << 0; // move 1:horiz., 0:vert.
     const M_RD  = 1 << 1; // move 1:rigth/down, 0:left/up
     let IPdir = M_H|M_RD;
+    let running = true;
     let stringMode = false;
-    let terminate = false;
     
     let output = '';
     
@@ -111,7 +111,7 @@ const interpret = code => {
             String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0)
         ),
         // @ End program.
-        '@': () => terminate = true,
+        '@': () => running = false,
         // ' ' (space) No-op.
         [NOP]: () => {},
     }
@@ -119,7 +119,7 @@ const interpret = code => {
     
     let infCycle = 1000; // Inf. cycle protection
     
-    while(!terminate) {
+    while (running) {
 //         terminate = --infCycle < 0; // Inf. cycle protection
         const [r, c] = IP;
         const char = grid[r][c];
@@ -136,7 +136,8 @@ const interpret = code => {
             }
         }
 //         console.log('S aft:', stack);
-//         console.groupEnd()
+//         console.log(output);
+//         console.groupEnd();
         moveIP();
     }
     
