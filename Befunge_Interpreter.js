@@ -15,6 +15,7 @@ const interpret = code => {
     let output = '';
     
     const NOP = ' ';
+    // " Start/stop string mode: push each character's ASCII value all the way up to the next ".
     const STR_MODE = '"';
     
     let grid = (() => {
@@ -45,12 +46,6 @@ const interpret = code => {
         return els;
     }
     
-    /*
-     * Get the value at the top of the stack.
-     * Can return undefined, if stack is empty
-     */
-    const peek = () => stack[stack.length - 1];
-    
     const setDir = {
         right: () => IPdir = M_H|M_RD,
         left: () => IPdir = M_H,
@@ -69,41 +64,58 @@ const interpret = code => {
     
     // Instruction Set {
     const IS = {
-        // 0...9
+        // 0-9 Push this number onto the stack.
         ..."0123456789".split('').reduce((acc, e) => {
             acc[e] = () => push(e);
             return acc;
         }, {}),
         
+        // +-*/% Addition: Pop a, b; push b-op-a.
         '+': ([a, b] = pop0(2)) => push(b + a),
         '-': ([a, b] = pop0(2)) => push(b - a),
         '*': ([a, b] = pop0(2)) => push(b * a),
+        // if a == 0, push 0; int div
         '/': ([a, b] = pop0(2)) => push(a == 0 ? 0 : (b / a)|0),
         '%': ([a, b] = pop0(2)) => push(a == 0 ? 0 : b % a),
         
+        // ! Logical NOT: Pop a. If the value is zero, push 1; otherwise, push 0.
         '!': ([a] = pop0()) => push((a == 0)|0),
+        // ` (backtick) Greater than: Pop a, b; push 1 if b>a, otherwise push 0.
         '`': ([a, b] = pop0(2)) => push((b > a)|0),
         
+        // ><^v? Set direction
         '>': setDir.right,
         '<': setDir.left,
         '^': setDir.up,
         'v': setDir.down,
         '?': setDir.random,
         
+        // _| Pop a; move right/down if a == 0, left/up otherwise
         '_': ([a] = pop0()) => a == 0 ? setDir.right() : setDir.left(),
         '|': ([a] = pop0()) => a == 0 ? setDir.down() : setDir.up(),
         
-        ':': (a = peek()) => push(a === undefined ? 0 : a),
+        // : Duplicate value on top of the stack. If there is nothing on top of the stack, push  0.
+        ':': ([a] = pop0()) => push(a, a),
+        // \ Swap two values on top of the stack. If there is only one value, pretend there is an extra 0 on bottom of the stack.
         '\\': ([a, b] = pop0(2)) => push(a, b),
+        
+        // $ Pop value from the stack and discard it.
         '$': pop0,
+        // . Pop value and output as an integer.
         '.': ([a] = pop0()) => output += a,
+        // , Pop value and output the ASCII character represented by the integer code that is stored in the value.
         ',': ([a] = pop0()) => output += String.fromCharCode(a),
+        // # Trampoline: Skip next cell.
         '#': moveIP,
+        // p A "put" call (a way to store a value for later use). Pop y, x and v, then change the character at the position (x,y) in the program to the character with ASCII value v.
         'p': ([r, c, v] = pop0(3)) => grid[r % gridSize[0]][c % gridSize[1]] = v,
+        // g A "get" call (a way to retrieve data in storage). Pop y and x, then push ASCII value of the character at that position in the program.
         'g': ([r, c] = pop0(2)) => push(
             String(grid[r % gridSize[0]][c % gridSize[1]]).charCodeAt(0)
         ),
+        // @ End program.
         '@': () => terminate = true,
+        // ' ' (space) No-op.
         [NOP]: () => {},
     }
     // } Instruction Set
