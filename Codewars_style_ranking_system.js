@@ -40,9 +40,11 @@ const User = (() => {
             {
                 rank: {
                     get: () => RANKS[(score / SCORE_PER_LEVEL)|0],
+                    enumerable: true,
                 },
                 progress: {
                     get: () => score % SCORE_PER_LEVEL,
+                    enumerable: true,
                 },
             }
         );
