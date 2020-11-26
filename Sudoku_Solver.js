@@ -28,7 +28,7 @@ const createSudokuSolver = (
         );
     }
     const NUMERAL_INDEX = new Map(numerals.map((e, i) => [e, i]));
-    if (NUMERAL_INDEX.size < numerals.length || NUMERAL_INDEX.has(emptyCell))
+    if (NUMERAL_INDEX.size < numerals.length || NUMERAL_INDEX.has(emptyCell)) {
         throw new Error(`Duplicate numerals!`);
     }
     NUMERAL_INDEX.set(emptyCell, -1);
@@ -39,7 +39,7 @@ const createSudokuSolver = (
      * @param array[array] sudoku : 2 dim. array[r][c] of the sudoku cells
      * @return array[array] : 2 dim. array[r][c] of the filled sudoku cells
      */
-    return sudoku => {
+    return (sudoku) => {
         
         
         const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
