@@ -39,12 +39,23 @@ const createSudokuSolver = (
      * @param array[array] sudoku : 2 dim. array[r][c] of the sudoku cells
      * @return array[array] : 2 dim. array[r][c] of the filled sudoku cells
      */
-    return (sudoku) => {
-        
-        
+    return sudoku => {
         const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
-        
-        
+        // Validate {
+        if (sudoku.length != ROW_LEN) {
+            throw new Error(`Invalid row count`);
+        }
+        sudoku.forEach((row, ri) => {
+            if (row.length != ROW_LEN) {
+                throw new Error(`Invalid cell count in row ${ri}`);
+            }
+            row.forEach((cell, ci) => {
+                if (! NUMERAL_INDEX.has(cell)) {
+                    throw new Error(`Undefined numeral at [${ri}][${ci}]`);
+                }
+            });
+        });
+        // } Validate
         
         
         let solved = [...sudoku];
