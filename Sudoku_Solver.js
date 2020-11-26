@@ -3,11 +3,13 @@
  * Limit to 25 due to using 32bit bitfields, and 25 is the largest square bellow 32.
  * 
  * @param int minorSquare : 1-5: The row length/count in a row of the minor squares
+ * @param any emptyCell : The designator for unfilled cells
  * @param array numerals : The symbols used for the numbers. Must be of length at least minorSquare**2 
  * @return function : The solver for sudoku of size minorSquare**2 x minorSquare**2
  */
 const createSudokuSolver = (
     minorSquare = 3, // minor squares: 3x3
+    emptyCell = 0,
     numerals = [
         1,  2,  3,  4,  5,
         6,  7,  8,  9,  10,
@@ -51,4 +53,4 @@ const createSudokuSolver = (
     }
 }
 
-const sudoku = createSudokuSolver(3, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
+const sudoku = createSudokuSolver(3, 0, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
