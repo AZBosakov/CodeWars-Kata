@@ -16,7 +16,7 @@ const createSudokuSolver = (
         11, 12, 13, 14, 15,
         16, 17, 18, 19, 20,
         21, 22, 23, 24, 25
-    ]; // Default, usefull for the usual 1-9 or the max
+    ] // Default, usefull for the usual 1-9 or the max size
 ) => {
     if (minorSquare < 1 || minorSquare > 5) {
         throw new Error(`Minor square size out of range (1..5): ${minorSquare}`);
@@ -28,9 +28,10 @@ const createSudokuSolver = (
         );
     }
     const NUMERAL_INDEX = new Map(numerals.map((e, i) => [e, i]));
-    if (NUMERAL_INDEX.size < numerals.length)
+    if (NUMERAL_INDEX.size < numerals.length || NUMERAL_INDEX.has(emptyCell))
         throw new Error(`Duplicate numerals!`);
     }
+    NUMERAL_INDEX.set(emptyCell, -1);
     
     /**
      * Solve the sudoku
