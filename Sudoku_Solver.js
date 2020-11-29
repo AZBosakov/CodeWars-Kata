@@ -21,7 +21,7 @@ const createSudokuSolver_max5 = (
     if (minorSquare < 1 || minorSquare > 5) {
         throw new Error(`Minor square size out of range (1..5): ${minorSquare}`);
     }
-    const ROW_LEN = minorSquare**2;
+    const ROW_LEN = minorSquare ** 2;
     if (numerals.length < ROW_LEN) {
         throw new Error(
             `Not enough numerals (${numerals.length} provided) for sudoku of ${ROW_LEN}x${ROW_LEN}`
@@ -94,11 +94,13 @@ const createSudokuSolver_max5 = (
             }
         );
         
-        console.log(normalized);
-        
         const unfilled = [];
+        const next = 0;
         
-        // Check for invalid sudoku with dupliacte numerals and init the bitmasks
+        /**
+         * Check for invalid sudoku with dupliacte numerals,
+         * init the bitmasks and the unfilled cell list.
+         */
         normalized.forEach(
             (row, ri) => row.forEach(
                 (cell, ci) => {
@@ -107,15 +109,14 @@ const createSudokuSolver_max5 = (
                     if (cellBit && !(cellBit & possible)) {
                         const sym = numerals
                         throw new Error(
-                            `Invalid sudoku: duplicate ${numerals[cell]} at (${ri},${ci})`
+                            `Invalid sudoku: duplicate ${numerals[cell]} at [${ri}][${ci}]`
                         );
                     }
                     setBit(INIT_BITMASKS, ri, ci, cellBit, false);
+                    if (! cellBit) unfilled.push([ri, ci]);
                 }
             )
         );
-        
-        console.log(unfilled);
         
         const solved = sudoku.map(row => row.slice());;
         // TODO: Fill the missing
