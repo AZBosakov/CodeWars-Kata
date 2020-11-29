@@ -40,25 +40,58 @@ const createSudokuSolver = (
      * @return array[array] : 2 dim. array[r][c] of the filled sudoku cells
      */
     return sudoku => {
-        const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
-        // Validate {
         if (sudoku.length != ROW_LEN) {
             throw new Error(`Invalid row count`);
         }
-        sudoku.forEach((row, ri) => {
-            if (row.length != ROW_LEN) {
-                throw new Error(`Invalid cell count in row ${ri}`);
-            }
-            row.forEach((cell, ci) => {
-                if (! NUMERAL_INDEX.has(cell)) {
-                    throw new Error(`Undefined numeral at [${ri}][${ci}]`);
+        const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
+        const MIN_SQ = minorSquare;
+        
+        const [
+            BI_ROWS,
+            BI_COLS,
+            BI_SQUS,
+        ] = [0, 1, 2];
+        // Bitmasks for numbers already present in the row/col/minor square
+        const INIT_BITMASKS = [
+            Array(ROW_LEN).fill(INIT_BITFIELD),
+            Array(ROW_LEN).fill(INIT_BITFIELD),
+            Array(ROW_LEN).fill(INIT_BITFIELD),
+        ];
+        
+        const setBit = (bms, r, c, v) => {
+            const nbm = bms.map(bm => bm.slice());
+            nbm[BI_ROWS][r] |= v;
+            nbm[BI_COLS][r] |= v;
+            const sq = ((r / MIN_SQ)|0) * 3 + ((c / MIN_SQ)|0);
+            nbm[BI_SQUS][sq] |= v;
+        }
+        
+        const normalized = sudoku.map(
+            row => row.map(
+                if (row.length != ROW_LEN) {
+                    throw new Error(`Invalid cell count in row ${ri}`);
                 }
+                cell => {
+                    if (! NUMERAL_INDEX.has(cell)) {
+                        throw new Error(`Undefined numeral at [${ri}][${ci}]`);
+                    }
+                    const n = NUMERAL_INDEX.get(cell);
+                    
+                    return ~n ? (1 << n) : 0;
+                }
+            );
+        );
+        
+        const unfilled = normalized.reduce((acc, row) => {
+            row.forEach((cell, col) = {
+                if (! cell) acc.push([row, col]);
             });
-        });
-        // } Validate
+            return acc;
+        }, []);
         
         
-        let solved = [...sudoku];
+        
+        let solved = [...normalized];
         
         
         return solved;
