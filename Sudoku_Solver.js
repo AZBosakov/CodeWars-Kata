@@ -95,7 +95,7 @@ const createSudokuSolver_max5 = (
         );
         
         const unfilled = [];
-        const next = 0;
+        const nextUnIdx = 0;
         
         /**
          * Check for invalid sudoku with dupliacte numerals,
@@ -113,14 +113,38 @@ const createSudokuSolver_max5 = (
                         );
                     }
                     setBit(INIT_BITMASKS, ri, ci, cellBit, false);
-                    if (! cellBit) unfilled.push([ri, ci]);
+                    if (! cellBit) unfilled.push({row: ri, col: ci, bit: 0});
                 }
             )
         );
         
-        const solved = sudoku.map(row => row.slice());;
-        // TODO: Fill the missing
+        const solved = sudoku.map(row => row.slice());
         
+        const LAST_UNF = unfilled.length - 1;
+        
+        const tryCell = (nextUnIdx, bitMask) => {
+            if (nextUnIdx > LAST_UNF) return true;
+            const {row, col} = unfilled[nextUnIdx];
+            let possible = getBits(bitMask, row, col);
+            while (possible) {
+                const tryBit = possible & ~(possible - 1);
+                const success = tryCell(nextUnIdx + 1, setBit(bitMask, row, col, tryBit));
+                if (success) {
+                    unfilled[nextUnIdx].bit = tryBit;
+                    return true;
+                }
+                possible ^= tryBit; // clear the last tried bit
+            }
+            return false;
+        };
+        
+        const success = tryCell(nextUnIdx, INIT_BITMASKS);
+        if (! success) throw new Error(`Cant solve sudoku!`);
+        
+        unfilled.forEach(({row, col, bit}) => {
+            const normVal = Math.log2(bit);
+            solved[row][col] = numerals[normVal];
+        });
         return solved;
     }
 }
