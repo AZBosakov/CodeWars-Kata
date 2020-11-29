@@ -7,7 +7,7 @@
  * @param array numerals : The symbols used for the numbers. Must be of length at least minorSquare**2 
  * @return function : The solver for sudoku of size minorSquare**2 x minorSquare**2
  */
-const createSudokuSolver = (
+const createSudokuSolver_max5 = (
     minorSquare = 3, // minor squares: 3x3
     emptyCell = 0,
     numerals = [
@@ -27,11 +27,11 @@ const createSudokuSolver = (
             `Not enough numerals (${numerals.length} provided) for sudoku of ${ROW_LEN}x${ROW_LEN}`
         );
     }
-    const NUMERAL_INDEX = new Map(numerals.map((e, i) => [e, i]));
-    if (NUMERAL_INDEX.size < numerals.length || NUMERAL_INDEX.has(emptyCell)) {
-        throw new Error(`Duplicate numerals!`);
+    const NUMERAL_INDEX = new Map(numerals.map((e, i) => [String(e), i]));
+    if (NUMERAL_INDEX.size < numerals.length || NUMERAL_INDEX.has(String(emptyCell))) {
+        throw new Error(`Duplicate numerals or empty cell symbol used as numeral!`);
     }
-    NUMERAL_INDEX.set(emptyCell, -1);
+    NUMERAL_INDEX.set(String(emptyCell), -1);
     
     /**
      * Solve the sudoku
@@ -45,7 +45,7 @@ const createSudokuSolver = (
         }
         const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
         const MIN_SQ = minorSquare;
-        
+        // Bitmap Index
         const [
             BI_ROWS,
             BI_COLS,
@@ -58,13 +58,25 @@ const createSudokuSolver = (
             Array(ROW_LEN).fill(INIT_BITFIELD),
         ];
         
+        // The minor square of the cell [r,c]
+        const msq = (r, c) => ((r / MIN_SQ)|0) * 3 + ((c / MIN_SQ)|0);
+        
+        // Mark a number as used in the corresponding row, col. and minor square
         const setBit = (bms, r, c, v) => {
             const nbm = bms.map(bm => bm.slice());
             nbm[BI_ROWS][r] |= v;
-            nbm[BI_COLS][r] |= v;
-            const sq = ((r / MIN_SQ)|0) * 3 + ((c / MIN_SQ)|0);
-            nbm[BI_SQUS][sq] |= v;
+            nbm[BI_COLS][c] |= v;
+            nbm[BI_SQUS][msq(r, c)] |= v;
+            return nbm;
         }
+        /**
+         * Get a bitmask of the possible numbers for the [row, col]
+         * An intersection of the sets of unused numbers for the
+         * corresponding row, col. and minor square
+         */
+        const getBits = (bms, r, c) => ~(
+            bms[BI_ROWS][r] | bms[BI_COLS][c] | bms[BI_SQUS][msq(r, c)]
+        );
         
         const normalized = sudoku.map(
             row => row.map(
@@ -82,6 +94,7 @@ const createSudokuSolver = (
             );
         );
         
+        
         const unfilled = normalized.reduce((acc, row) => {
             row.forEach((cell, col) = {
                 if (! cell) acc.push([row, col]);
@@ -98,4 +111,4 @@ const createSudokuSolver = (
     }
 }
 
-const sudoku = createSudokuSolver(3, 0, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
+const sudoku = createSudokuSolver_max25(3, 0, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
