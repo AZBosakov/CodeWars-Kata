@@ -45,7 +45,7 @@ const createSudokuSolver_max5 = (
         }
         const INIT_BITS = ~((1 << ROW_LEN) - 1);
         const MIN_SQ = minorSquare;
-        // Bitmap Index
+        // Bitmask Index
         const [
             BI_ROWS,
             BI_COLS,
@@ -85,21 +85,26 @@ const createSudokuSolver_max5 = (
                 }
                 return row.map(
                     (cell, ci) => {
-                        if (! NUMERAL_INDEX.has(cell)) {
+                        if (! NUMERAL_INDEX.has(String(cell))) {
                             throw new Error(`Undefined numeral at [${ri}][${ci}]`);
                         }
-                        return NUMERAL_INDEX.get(cell);
+                        return NUMERAL_INDEX.get(String(cell));
                     }
                 );
             }
         );
+        
+        console.log(normalized);
+        
+        const unfilled = [];
+        
         // Check for invalid sudoku with dupliacte numerals and init the bitmasks
         normalized.forEach(
             (row, ri) => row.forEach(
                 (cell, ci) => {
-                    const possible = getBits(ri, ci);
-                    const cellBit = ~cell ? (1 << cell) : 0;
-                    if (! (cellBit & possible)) {
+                    const possible = getBits(INIT_BITMASKS, ri, ci);
+                    const cellBit = ~cell ? (1 << cell) : 0;                    
+                    if (cellBit && !(cellBit & possible)) {
                         const sym = numerals
                         throw new Error(
                             `Invalid sudoku: duplicate ${numerals[cell]} at (${ri},${ci})`
@@ -110,14 +115,7 @@ const createSudokuSolver_max5 = (
             )
         );
         
-        const unfilled = normalized.reduce((acc, row) => {
-            row.forEach((cell, col) => {
-                if (! cell) acc.push([row, col]);
-            });
-            return acc;
-        }, []);
-        
-        
+        console.log(unfilled);
         
         const solved = sudoku.map(row => row.slice());;
         // TODO: Fill the missing
