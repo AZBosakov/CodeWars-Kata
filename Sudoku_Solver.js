@@ -43,7 +43,7 @@ const createSudokuSolver_max5 = (
         if (sudoku.length != ROW_LEN) {
             throw new Error(`Invalid row count`);
         }
-        const INIT_BITFIELD = ~((1 << ROW_LEN) - 1);
+        const INIT_BITS = ~((1 << ROW_LEN) - 1);
         const MIN_SQ = minorSquare;
         // Bitmap Index
         const [
@@ -53,9 +53,9 @@ const createSudokuSolver_max5 = (
         ] = [0, 1, 2];
         // Bitmasks for numbers already present in the row/col/minor square
         const INIT_BITMASKS = [
-            Array(ROW_LEN).fill(INIT_BITFIELD),
-            Array(ROW_LEN).fill(INIT_BITFIELD),
-            Array(ROW_LEN).fill(INIT_BITFIELD),
+            Array(ROW_LEN).fill(INIT_BITS),
+            Array(ROW_LEN).fill(INIT_BITS),
+            Array(ROW_LEN).fill(INIT_BITS),
         ];
         
         // The minor square of the cell [r,c]
@@ -79,31 +79,39 @@ const createSudokuSolver_max5 = (
         );
         
         const normalized = sudoku.map(
-            (row, ri) => row.map(
+            (row, ri) => {
                 if (row.length != ROW_LEN) {
                     throw new Error(`Invalid cell count in row ${ri}`);
                 }
-                (cell, ci) => {
-                    if (! NUMERAL_INDEX.has(cell)) {
-                        throw new Error(`Undefined numeral at [${ri}][${ci}]`);
+                return row.map(
+                    (cell, ci) => {
+                        if (! NUMERAL_INDEX.has(cell)) {
+                            throw new Error(`Undefined numeral at [${ri}][${ci}]`);
+                        }
+                        return NUMERAL_INDEX.get(cell);
                     }
-                    const n = NUMERAL_INDEX.get(cell);
-                    return ~n ? (1 << n) : 0;
-                }
-            );
+                );
+            }
         );
         // Check for invalid sudoku with dupliacte numerals and init the bitmasks
         normalized.forEach(
             (row, ri) => row.forEach(
                 (cell, ci) => {
                     const possible = getBits(ri, ci);
-                    
+                    const cellBit = ~cell ? (1 << cell) : 0;
+                    if (! (cellBit & possible)) {
+                        const sym = numerals
+                        throw new Error(
+                            `Invalid sudoku: duplicate ${numerals[cell]} at (${ri},${ci})`
+                        );
+                    }
+                    setBit(INIT_BITMASKS, ri, ci, cellBit, false);
                 }
             )
         );
         
         const unfilled = normalized.reduce((acc, row) => {
-            row.forEach((cell, col) = {
+            row.forEach((cell, col) => {
                 if (! cell) acc.push([row, col]);
             });
             return acc;
@@ -118,4 +126,4 @@ const createSudokuSolver_max5 = (
     }
 }
 
-const sudoku = createSudokuSolver_max25(3, 0, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
+const sudoku = createSudokuSolver_max5(3, 0, [1,  2,  3,  4,  5, 6,  7,  8,  9]);
