@@ -59,15 +59,15 @@ const createSudokuSolver_max5 = (
         ];
         
         // The minor square of the cell [r,c]
-        const msq = (r, c) => ((r / MIN_SQ)|0) * 3 + ((c / MIN_SQ)|0);
+        const msq = (r, c) => ((r / MIN_SQ)|0) * MIN_SQ + ((c / MIN_SQ)|0);
         
         // Mark a number as used in the corresponding row, col. and minor square
-        const setBit = (bms, r, c, v) => {
-            const nbm = bms.map(bm => bm.slice());
-            nbm[BI_ROWS][r] |= v;
-            nbm[BI_COLS][c] |= v;
-            nbm[BI_SQUS][msq(r, c)] |= v;
-            return nbm;
+        const setBit = (bms, r, c, v, cloneBM = true) => {
+            const nbms = cloneBM ? bms.map(bm => bm.slice()) : bms;
+            nbms[BI_ROWS][r] |= v;
+            nbms[BI_COLS][c] |= v;
+            nbms[BI_SQUS][msq(r, c)] |= v;
+            return nbms;
         }
         /**
          * Get a bitmask of the possible numbers for the [row, col]
@@ -79,21 +79,28 @@ const createSudokuSolver_max5 = (
         );
         
         const normalized = sudoku.map(
-            row => row.map(
+            (row, ri) => row.map(
                 if (row.length != ROW_LEN) {
                     throw new Error(`Invalid cell count in row ${ri}`);
                 }
-                cell => {
+                (cell, ci) => {
                     if (! NUMERAL_INDEX.has(cell)) {
                         throw new Error(`Undefined numeral at [${ri}][${ci}]`);
                     }
                     const n = NUMERAL_INDEX.get(cell);
-                    
                     return ~n ? (1 << n) : 0;
                 }
             );
         );
-        
+        // Check for invalid sudoku with dupliacte numerals and init the bitmasks
+        normalized.forEach(
+            (row, ri) => row.forEach(
+                (cell, ci) => {
+                    const possible = getBits(ri, ci);
+                    
+                }
+            )
+        );
         
         const unfilled = normalized.reduce((acc, row) => {
             row.forEach((cell, col) = {
@@ -104,8 +111,8 @@ const createSudokuSolver_max5 = (
         
         
         
-        let solved = [...normalized];
-        
+        const solved = sudoku.map(row => row.slice());;
+        // TODO: Fill the missing
         
         return solved;
     }
