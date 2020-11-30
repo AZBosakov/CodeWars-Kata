@@ -109,7 +109,6 @@ const createSudokuSolver = (
         );
         
         const unfilled = [];
-        const nextUnIdx = 0;
         
         /**
          * Check for invalid sudoku with dupliacte numerals,
@@ -135,10 +134,23 @@ const createSudokuSolver = (
             )
         );
         
+        const unfIdx = 0;
+        let cell = {};
+        let unused = 0;
+        while (unfIdx > 0 && unfIdx < unfilled.length) {
+            cell = unfilled[unfIdx];
+            unused = getUnused(cell.row, cell.col) ^ cell.bit;
+            if (! unused) {
+                setUnused(cell.row, cell.col, cell.bit);
+                cell.bit = 0;
+                --unfIdx;
+                continue;
+            }
+        }
+        
+        if (unfIdx < 0) throw new Error('Unsolvable!');
+        
         const solved = sudoku.map(row => row.slice());
-        
-        
-        
         unfilled.forEach(({row, col, bit}) => {
             const normVal = Math.log2(bit);
             solved[row][col] = numerals[normVal];
