@@ -146,6 +146,9 @@ const createSudokuSolver = (
                 --unfIdx;
                 continue;
             }
+            cell.bit = unused & ~(unused - 1);
+            setUsed(cell.row, cell.col, cell.bit);
+            ++unfIdx;
         }
         
         if (unfIdx < 0) throw new Error('Unsolvable!');
