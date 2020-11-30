@@ -78,6 +78,19 @@ const createSudokuSolver = (
         const COL = Array(SIZE).fill(INIT_BITS);
         const REG = Array(SIZE).fill(INIT_BITS);
         
+        const setUsed = (r, c, bits) => {
+            ROW[r] |= bits;
+            COL[c] |= bits;
+            REG[CELL_REG[r][c]] |= bits;
+        }
+        
+        const setUnused = (r, c, bits) => {
+            ROW[r] &= ~bits;
+            COL[c] &= ~bits;
+            REG[CELL_REG[r][c]] &= ~bits;
+        }
+        
+        getUnused = (r, c) => ~(ROW[r] | COL[c] | REG[CELL_REG[r][c]]);
         
         const normalized = sudoku.map(
             (row, ri) => {
@@ -105,42 +118,26 @@ const createSudokuSolver = (
         normalized.forEach(
             (row, ri) => row.forEach(
                 (cell, ci) => {
-                    const possible = getBits(INIT_BITMASKS, ri, ci);
-                    const cellBit = ~cell ? (1 << cell) : 0;                    
-                    if (cellBit && !(cellBit & possible)) {
-                        const sym = numerals
-                        throw new Error(
-                            `Invalid sudoku: duplicate ${numerals[cell]} at [${ri}][${ci}]`
-                        );
+                    const unused = getUnused(ri, ci);
+                    const cellBit = ~cell ? (1 << cell) : 0;
+                    if (cellBit) {
+                        if (!(cellBit & unused)) {
+                            const sym = numerals
+                            throw new Error(
+                                `Invalid sudoku: duplicate ${numerals[cell]} at [${ri}][${ci}]`
+                            );
+                        }
+                        setUsed(ri, ci, cellBit);
+                    } else {
+                        unfilled.push({row: ri, col: ci, bit: 0});
                     }
-                    setBit(INIT_BITMASKS, ri, ci, cellBit, false);
-                    if (! cellBit) unfilled.push({row: ri, col: ci, bit: 0});
                 }
             )
         );
         
         const solved = sudoku.map(row => row.slice());
         
-        const LAST_UNF = unfilled.length - 1;
         
-        const tryCell = (nextUnIdx, bitMask) => {
-            if (nextUnIdx > LAST_UNF) return true;
-            const {row, col} = unfilled[nextUnIdx];
-            let possible = getBits(bitMask, row, col);
-            while (possible) {
-                const tryBit = possible & ~(possible - 1);
-                const success = tryCell(nextUnIdx + 1, setBit(bitMask, row, col, tryBit));
-                if (success) {
-                    unfilled[nextUnIdx].bit = tryBit;
-                    return true;
-                }
-                possible ^= tryBit; // clear the last tried bit
-            }
-            return false;
-        };
-        
-        const success = tryCell(nextUnIdx, INIT_BITMASKS);
-        if (! success) throw new Error(`Cant solve sudoku!`);
         
         unfilled.forEach(({row, col, bit}) => {
             const normVal = Math.log2(bit);
