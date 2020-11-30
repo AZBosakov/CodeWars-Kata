@@ -54,7 +54,13 @@ const createSudokuSolver = (
     regSymsOrd.forEach(([rs, occ]) => {
         if (occ != SIZE) throw new Error(`Invalid region size for ${rs}:${occ}`);
     });
-    
+    const REG_SYM_IDX = new Map(regSymsOrd.map(
+        ([rs], i) => [rs, i]
+    ));
+    // Mapping between (col, rol) => region
+    const CELL_REG = template.map(row => row.map(
+        cell => REG_SYM_IDX.get(String(cell))
+    ));
     
     const INIT_BITS = SIZE == 32 ? 0 : (-1 << SIZE);
     /**
