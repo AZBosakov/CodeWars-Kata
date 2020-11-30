@@ -4,6 +4,7 @@
  * @param array[array[string|number]] template :
  *      A square array of symbols, distinct symbols belonging to different regions.
  *      Each symbol must occur n-times, where n is the length of the square of the puzzle
+ *      Region index is assigned in the order of occurence of a distinct symbol.
  * @param string|number emptyCell : The symbol designating unfilled cells
  * @param array[string|number] numerals : The symbols used for the numbers.
  * @return function : The solver for the sudoku type
@@ -49,7 +50,10 @@ const createSudokuSolver = (
             regSyms.set(cell, enc + 1);
         }
     ));
-    const ents = [...regSyms.entries()];
+    const regSymsOrd = [...regSyms.entries()];
+    regSymsOrd.forEach(([rs, occ]) => {
+        if (occ != SIZE) throw new Error(`Invalid region size for ${rs}:${occ}`);
+    });
     
     
     const INIT_BITS = SIZE == 32 ? 0 : (-1 << SIZE);
