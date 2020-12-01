@@ -128,53 +128,35 @@ const createSudokuSolver = (
                         }
                         setUsed(ri, ci, cellBit);
                     } else {
-                        unfilled.push({row: ri, col: ci, bit: 0, tried: 0});
+                        unfilled.push({row: ri, col: ci, bit: 0, try: 0});
                     }
                 }
             )
         );
         
-        
-        let unfIdx = 0;
+        // Non-recursive backtracking, hoping for better performance
+        let unIdx = 0;
+        let lastIdx = -1;
         let cell = {};
-        let unused = 0;
-        while (unfIdx >= 0 && unfIdx < unfilled.length) {
-            cell = unfilled[unfIdx];
-            
-console.group();
-    console.log(cell);
-            
-            unused = getUnused(cell.row, cell.col) & ~(cell.tried);
-        
-    console.log(`idx: ${unfIdx}`);
-    console.log('row',cell.row, (ROW[cell.row] & 0xff).toString(2));
-    console.log('col',cell.col, (COL[cell.col] & 0xff).toString(2));
-    console.log('reg',CELL_REG[cell.row][cell.col], (REG[CELL_REG[cell.row][cell.col]] & 0xff).toString(2));
-    console.log(`un: ` + (unused >>> 0).toString(2));
-        
-            if (unused) {
-                cell.bit = unused & ~(unused - 1);
-                cell.tried |= cell.bit;
-                setUsed(cell.row, cell.col, cell.bit);
-                ++unfIdx;
-            
-    console.log(cell);
-console.groupEnd();
-        
+        while (unIdx >= 0 && unIdx < unfilled.length) {
+            cell = unfilled[unIdx];
+            if (unIdx - lastIdx > 0) {
+                cell.try = getUnused(cell.row, cell.col);
+            } else {
+                setUnused(cell.row, cell.col, cell.bit);
+                cell.try ^= cell.bit;
+            }
+            lastIdx = unIdx;
+            if (! cell.try) {
+                --unIdx;
                 continue;
             }
-            if (cell.tried) setUnused(cell.row, cell.col, cell.bit);
-            cell.bit = 0;
-            cell.tried = 0;
-            --unfIdx;
-            
-    console.log(cell);
-console.groupEnd();
-        
+            cell.bit = cell.try & ~(cell.try - 1);
+            setUsed(cell.row, cell.col, cell.bit);
+            ++unIdx;
         }
         
-//         if (unfIdx < 0) throw new Error('Unsolvable!');
-
+        if (unIdx < 0) throw new Error('Unsolvable!');
         
         const solved = sudoku.map(row => row.slice());
         unfilled.forEach(({row, col, bit}) => {
