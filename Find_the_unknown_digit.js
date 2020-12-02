@@ -21,6 +21,7 @@ const solveExpression = (() => {
         try {
             const [, n1, op, n2, res] = exp.match(PATTERN);
             for (let d = (leading ? 1 : 0); d < 10; d++) {
+                if (~exp.indexOf(d)) continue;
                 if (OPS[op](rd(n1, d), rd(n2, d)) == rd(res, d)) return d;
             }
         } catch(e) {
