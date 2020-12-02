@@ -30,6 +30,17 @@ const createTpl = (sqLen, regLen) => Array(sqLen).fill(0).map(
         }
     )
 );
+
+const sqareArray = arr => {
+    const sqLen = Math.sqrt(arr.length);
+    if (sqLen % 1) throw new Error(`Array length not a squared integer!`);
+    return arr.reduce(
+        (acc, cell, ci) => {
+            acc[(ci/sqLen)|0][ci % sqLen] = cell;
+            return acc;
+        }, Array(sqLen).fill(0).map(r => Array(sqLen).fill(0))
+    );
+}
     
 const hexNums = '123456789ABCDEFG'.split('');
 const hexudoku = 
