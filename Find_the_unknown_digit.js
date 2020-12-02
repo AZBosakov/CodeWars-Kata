@@ -23,7 +23,7 @@ const solveExpression = (() => {
             for (let d = (leading ? 1 : 0); d < 10; d++) {
                 if (OPS[op](rd(n1, d), rd(n2, d)) == rd(res, d)) return d;
             }
-        } catch {
+        } catch(e) {
             throw new Error(`Invalid expression: ${exp}`);
         }
         return NOT_FOUND;
