@@ -12,14 +12,17 @@ const solveExpression = (() => {
     
     const PATTERN = RegExp(`^\\s*(${NUM})\\s*(${OP})\\s*(${NUM})\\s*=\\s*(${NUM})`);
     const UNKN_G = RegExp(`\\${UNKN}`, 'g');
-    const UNKN_LEAD = RegExp(`^-?\\${UNKN}$`);
+    const UNKN_LEAD = RegExp(`^-?\\${UNKN}.+`);
     
+    // Replace Digit
     const rd = (num, d) => Number(String(num).replace(UNKN_G, d));
+    // Leading Unknown
+    const lu = num => !!String(num).match(UNKN_LEAD);
     
     return exp => {
-        const leading = exp.match(UNKN_LEAD);
         try {
             const [, n1, op, n2, res] = exp.match(PATTERN);
+            const leading = lu(n1) || lu(n2) || lu(res);
             for (let d = (leading ? 1 : 0); d < 10; d++) {
                 if (~exp.indexOf(d)) continue;
                 if (OPS[op](rd(n1, d), rd(n2, d)) == rd(res, d)) return d;
