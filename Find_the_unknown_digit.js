@@ -12,7 +12,7 @@ const solveExpression = (() => {
     
     const PATTERN = RegExp(`^\\s*(${NUM})\\s*(${OP})\\s*(${NUM})\\s*=\\s*(${NUM})`);
     const UNKN_G = RegExp(`\\${UNKN}`, 'g');
-    const UNKN_LEAD = RegExp(`^-?\\${UNKN}`);
+    const UNKN_LEAD = RegExp(`^-?\\${UNKN}$`);
     
     const rd = (num, d) => Number(String(num).replace(UNKN_G, d));
     
