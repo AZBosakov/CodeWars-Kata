@@ -71,7 +71,7 @@ const interpret = code => {
             return acc;
         }, {}),
         
-        // +-*/% Addition: Pop a, b; push b-op-a.
+        // +-*/% Add/Sub/Mul/Div/Mod Op: Pop a, b; push b-op-a.
         '+': ([a, b] = pop0(2)) => push(b + a),
         '-': ([a, b] = pop0(2)) => push(b - a),
         '*': ([a, b] = pop0(2)) => push(b * a),
