@@ -90,10 +90,6 @@ const closestPair = (() => {
         const sL = rR.item(0)[X] - d;
         const sR = rL.item(-1)[X] + d;
         
-        // If left<->right further apart than min-d
-        // return the closest in the corresp. sunset
-        if (sR - sL > d) return closer;
-        
         const inStrip = [];
         let p;
         
