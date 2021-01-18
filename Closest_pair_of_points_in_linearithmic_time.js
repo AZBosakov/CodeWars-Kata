@@ -2,7 +2,7 @@
 
 const closestPair = (() => {
     // Normalize Index
-    const ni = (i, l) => i < 0 ? Math.max(0, i + l) : Math.min(l, i);
+    const ni = (i, l) => i < 0 ? Math.max(0, (i|0) + l) : Math.min(l, (i|0));
     /*
      * Avoid copying the array via .slice(),
      * when creating Left and Right parts.
@@ -33,19 +33,27 @@ const closestPair = (() => {
         }
     }
     
-    const BRUTE_FORCE_MAX = 4;
+    const BRUTE_FORCE = 4;
     const x = 0;
     const y = 1;
     
-    const d = (p1, p2) => Math.sqrt((p1[x] - p2[x])**2 + (p1[y] - p2[y])**2);
+    /**
+     * @param p0 [x, y]
+     * @param p1 [x, y]
+     * @return float
+     */ 
+    const dist = (p0, p1) => Math.sqrt((p0[x] - p1[x])**2 + (p0[y] - p1[y])**2);
     
+    /**
+     * @param psr ArrayRange
+     * @return {p0, p1, d}
+     */
     const bForce = psr => {
         let min = Infinity;
-        let p0 = psr.item(0);
-        let p1 = psr.item(1);
+        let p0, p1;
         for (let i = 0; i < psr.length - 1; i++) {
             for (let j = i + 1; j < psr.length; j++) {
-                const newMin = d(psr.item(i), psr.item(j));
+                const newMin = dist(psr.item(i), psr.item(j));
                 if (newMin < min) {
                     min = newMin;
                     p0 = psr.item(i);
@@ -56,7 +64,12 @@ const closestPair = (() => {
         return {p0, p1, d: min};
     }
     
+    /**
+     * @param psr ArrayRange
+     * @return {p0, p1, d}
+     */
     const search = psr => {
+        if (psr.length <= BRUTE_FORCE) return bForce(psr);
         
     }
     
@@ -67,6 +80,7 @@ const closestPair = (() => {
             points.map(([...c]) => c).sort((a, b) => a[x] - b[x])
         );
         
-        
+        const {p0, p1} = search(sortX);
+        return [p0, p1];
     }
 })();
