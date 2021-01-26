@@ -1,4 +1,4 @@
-const TEST_STR = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const TEST_STR = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 // const TEST_STR = 'What is this ?';
 
@@ -15,17 +15,17 @@ INDEX.delete('_');
 
 
 const enc = (char, pos) => {
-    pos = pos;
     const i = INDEX.get(char);
-//     const ei = (i * 2**(pos % 66 + 1)) % 66;
     const ei = (i * 2**(pos % ALPHA_LEN + 1)) % CYCLE;
     return ALPHABET[ei];
 }
 
 const dec = (char, pos) => {
     const ei = INDEX.get(char);
+    pos = pos % ALPHA_LEN;
+    const mul = 2**(pos % ALPHA_LEN + 1);
     
-    const di = 
+//     const di = 
     
     return ALPHABET[di];
 }
