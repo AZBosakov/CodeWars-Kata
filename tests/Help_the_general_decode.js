@@ -25,6 +25,15 @@ const mm = pos => {
     return x * 2**(pwr % PC) % CYCLE;
 }
 
+const gcd = (x, y) => {
+    if (0 == x || 0 == y) return 0;
+    let m = 0;
+    while (m = x % y) {
+        x = y; y = m;
+    }
+    return Math.abs(y);
+}
+
 const enc = (char, pos) => {
     const i = INDEX.get(char);
     if (! i) return char;
