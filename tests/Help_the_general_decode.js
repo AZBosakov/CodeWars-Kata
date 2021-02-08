@@ -14,7 +14,7 @@ const INDEX = ALPHABET.split('').reduce(
 INDEX.delete('_');
 
 // position % ALPHA_LEN => Multiplier Modulus for the symbol index
-// pos => 2**(pos % ALPHA_LEN + 1)
+// pos => 2**(pos % ALPHA_LEN + 1) % CYCLE
 const PC = 50; // power chunks: 2**50 < Number.MAX_SAFE_INTEGER;
 const mm = pos => {
     const pwr = pos % ALPHA_LEN + 1;
