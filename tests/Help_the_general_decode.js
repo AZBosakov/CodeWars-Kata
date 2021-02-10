@@ -15,6 +15,7 @@ INDEX.delete('_');
 
 // position % ALPHA_LEN => Multiplier Modulus for the symbol index
 // pos => 2**(pos % ALPHA_LEN + 1) % CYCLE
+// pos is 0-based
 const PC = 50; // power chunks: 2**50 < Number.MAX_SAFE_INTEGER;
 const mm = pos => {
     const pwr = pos % ALPHA_LEN + 1;
@@ -25,25 +26,33 @@ const mm = pos => {
     return x * 2**(pwr % PC) % CYCLE;
 }
 
-const gcd = (a, b) => a % b ? gcd(b, a % b) : Math.abs(b);
-
+// Translated from python:
+// https://brilliant.org/wiki/extended-euclidean-algorithm/?subtopic=integers&chapter=greatest-common-divisor-lowest-common-multiple#python-solution
+const extEuclid = (a, b) => {
+    let [xg,yg, u,v] = [0,1, 1,0];
+    while (a) {
+        const [q, r] = [(b/a)|0, b%a];
+        const [m, n] = [xg-u*q, yg-v*q];
+        [b,a, xg,yg, u,v] = [a,r, u,v, m,n];
+    }
+    let gcd = b;
+    return {gcd, xg, yg};
+}
+// pi: plaintext index, ei: encrypted index (1-based)
 const enc = (char, pos) => {
-    const i = INDEX.get(char);
-    if (! i) return char;
-    const ei = i * mm(pos) % CYCLE;
+    const pi = INDEX.get(char);
+    if (! pi) return char;
+    const ei = pi * mm(pos) % CYCLE;
     return ALPHABET[ei];
 }
 
 const dec = (char, pos) => {
     const ei = INDEX.get(char);
-    if (! i) return char;
-    pos = pos % ALPHA_LEN;
+    if (! ei) return char;
+    const {gcd, xg, yg} = extEuclid(mm(pos), CYCLE);
+    const pi = ((xg * (ei / gcd)) % CYCLE + CYCLE) % CYCLE;
     
-    const mul = 2**(pos % ALPHA_LEN + 1);
-    
-//     const di = 
-    
-    return ALPHABET[di];
+    return ALPHABET[pi];
 }
 e = s => s.split('').map(enc).join('');
 // console.log(TEST_STR.split('').map(enc).join(''));
