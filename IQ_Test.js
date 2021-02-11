@@ -1,3 +1,5 @@
+// https://www.codewars.com/kata/552c028c030765286c00007d
+
 function iqTest(numbers){
     const integers = numbers.trim().split(/\s+/);
     const arrayParity = (

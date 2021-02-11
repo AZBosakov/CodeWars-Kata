@@ -1,3 +1,6 @@
+// https://www.codewars.com/kata/5296bc77afba8baa690002d7
+// 3 kyu
+
 /**
  * Generate a solver for square sudokus
  * 
@@ -111,7 +114,7 @@ const createSudokuSolver = (
         const unfilled = [];
         
         /**
-         * Check for invalid sudoku with dupliacte numerals,
+         * Check for invalid sudoku with duplicate numerals,
          * init the bitmasks and the unfilled cell list.
          */
         normalized.forEach(

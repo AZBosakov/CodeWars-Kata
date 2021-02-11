@@ -1,3 +1,6 @@
+// https://www.codewars.com/kata/525c7c5ab6aecef16e0001a5
+// 4 kyu
+
 /**
  * Create the parseInt() function for the corresponding scale:
  * https://en.wikipedia.org/wiki/Names_of_large_numbers

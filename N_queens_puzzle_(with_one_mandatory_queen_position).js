@@ -1,3 +1,5 @@
+// https://www.codewars.com/kata/561bed6a31daa8df7400000e
+
 /**
  * A slightly modified version of my previous solution - 5x faster.
  * 30 queens in ~3 sec on my ancient Celleron E3300 / Chrome 80

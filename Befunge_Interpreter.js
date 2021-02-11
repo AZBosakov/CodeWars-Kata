@@ -1,4 +1,5 @@
-
+// https://www.codewars.com/kata/526c7b931666d07889000a3c
+// 4 kyu
 /*
  * Instruction set functions are recreated on every call.
  * But being in scope -> simpler to write.

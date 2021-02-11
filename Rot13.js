@@ -1,3 +1,5 @@
+// https://www.codewars.com/kata/530e15517bc88ac656000716
+
 // Lookup Table
 const lt = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').reduce(
     (acc, e, i, arr) => {

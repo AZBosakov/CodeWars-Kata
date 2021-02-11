@@ -1,3 +1,6 @@
+// https://www.codewars.com/kata/52cf02cd825aef67070008fa
+// 3 kyu
+
 'use strict'
 
 var device = device || {};
