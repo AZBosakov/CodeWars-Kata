@@ -1,3 +1,4 @@
+
 /*
  * Instruction set functions are recreated on every call.
  * But being in scope -> simpler to write.
