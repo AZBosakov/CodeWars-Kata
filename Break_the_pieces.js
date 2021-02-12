@@ -5,7 +5,7 @@
 /**
  * Trace the closed contours in a square grid
  * 
- * @param GRID Array[Array]
+ * @param SYM_GRID Array[Array]
  * @param designate {
  *      CORNER : The grid element for contour corner,
  *      H_LINE : The grid element for horiz. line,
@@ -13,7 +13,7 @@
  *      BACK : The grid element for empty space (background),
  * }
  */
-const sqGridContours = (GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
+const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Directions to neighbouring cells
     const N = 1 << 0;
     const E = 1 << 1;
@@ -31,26 +31,37 @@ const sqGridContours = (GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
         [BACK, 0]
     ]);
     
-    if (SYM2DIR.length < 4) throw new Error('{CORNER, H_LINE, V_LINE, BACK} must be distinct');
+    if (MAP_SYM2DIR.length < 4) throw new Error('{CORNER, H_LINE, V_LINE, BACK} must be distinct');
     
     // directions to neigbouring cells -> grid symbol
     const MAP_DIR2SYM = new Map(
-        [...MAP_SYM2DIR.entries()].map(([sym, dir]) => [dir, sym])
+        [...MAP_SYM2DIR.entries()].map( ([sym, dir]) => [dir, sym] )
     );
     
     const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : CORNER;
     
-    const WIDTH = grid.reduce((max, r) => Math.max(max, r.length), 0);
+    const WIDTH = SYM_GRID.reduce((max, r) => Math.max(max, r.length), 0);
     
     const CONTOURS = [];
+    // Can't have closed countours with single row/column
+    if ((SYM_GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
+    // util
+    const bitCount n => {
+        n = n - ((n >> 1) & 0x55555555);
+        n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+        return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+    }
     
-    if ((GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
+    // Normalize the grid
+    const GRID = SYM_GRID.map(row => row.map(sym2dir));
+    // Create empty grid with the dimensions of the input grid
+    const getCanvas = () => Array(GRID.length).fill(0).map( () => Array(WIDTH).fill(0) );
     
-    
-    const getCanvas = () => Array(ROWS.length).fill(0).map(() => Array(WIDTH).fill(''));
-    
-    
+    // TEST {
+    let shape = GRID.map(row => row.map(dir2sym));
+    CONTOURS.push({x: 0, y: 0, shape});
+    // } TEST
     return CONTOURS;
 }
 
