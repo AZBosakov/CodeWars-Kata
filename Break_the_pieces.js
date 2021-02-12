@@ -35,7 +35,7 @@ const sqGridContours = (GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     
     // directions to neigbouring cells -> grid symbol
     const MAP_DIR2SYM = new Map(
-        [...MAP_SYM2DIR.entries()].map([sym, dir] => [dir, sym])
+        [...MAP_SYM2DIR.entries()].map(([sym, dir]) => [dir, sym])
     );
     
     const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
