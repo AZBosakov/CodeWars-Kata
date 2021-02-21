@@ -44,8 +44,9 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     
     const oppDir = db => dirBitRot(db, 2);
     
-    // copy/paste, not modified for this particular usage
+    // copy/paste
     const bitCount = n => {
+        if (! n) return 0;
         n = n - ((n >> 1) & 0x55555555);
         n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
         return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
@@ -70,7 +71,6 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : CORNER;
     // Normalize the grid
     const GRID = SYM_GRID.map(row => row.map(sym2dir));
-    
     const WIDTH = SYM_GRID.reduce((max, r) => Math.max(max, r.length), 0);
     
     const CONTOURS = [];
@@ -89,19 +89,47 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
         return GRID[row][col];
     }
     // returns bitfield of the directions to the cells connected to this one
-    const connectsTo = (row, col) => {
+    const connects = (row, col) => {
         const dirs = cellAt(row, col);
         if (! dirs) return 0;
-        let connects = 0;
+        let conn = 0;
         for (let b = U; b; b >>= 1) {
             if (
                 (dirs & b) && (cellAt(row, col, dir2grid(b)) & oppDir(b))
-            ) connects |= b;
+            ) conn |= b;
         }
-        return connects;
+        return conn;
     }
     
+    // Clear single-connected cells, starting from (row, col)
+    const clearLoose = (row, col) => {
+        let conn;
+        while (
+            1 == bitCount( conn = connects(row, col) )
+        ) {
+            const nextTo = dir2grid(conn);
+            GRID[row][col] = 0;
+            row += nextTo[0];
+            col += nextTo[1];
+        }
+    }
     
+    // Clear loose ends pass
+    for (let row = 0; row < GRID.length; row++) {
+        for (let col = 0; col < GRID[row].length; col++) {
+            
+            console.log('connects', row, col, connects(row, col) );
+            
+            clearLoose(row, col);
+        }
+    }
+    
+    // Trace shapes pass
+    for (let row = 0; row < GRID.length; row++) {
+        for (let col = 0; col < GRID[row].length; col++) {
+            
+        }
+    }
     
     // TEST {
     let shape = GRID.map(row => row.map(dir2sym));
