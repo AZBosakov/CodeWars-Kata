@@ -15,27 +15,48 @@
  */
 const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Directions to neighbouring cells, CW from Right, bits
+    // WARNING: The util funcs bellow depend on this bit ordering
     const R = 1;        // 0001
     const D = R << 1;   // 0010
     const L = D << 1;   // 0100
     const U = L << 1;   // 1000
     
+    const RL = R|L;
+    const DU = D|U;
+    const RDLU = R|D|L|U
+    
+    const DIR_COUNT = 4;
+    
     // dir. bit -> [+row, +col]
-    // WARNING: Depends on the direction bit ordering above.
     const dir2grid = db => [
         ((db & D) >> 1) - ((db & U) >> 3),
         (db & R) - ((db & L) >> 2)
     ];
     
+    const dirBitRot = (db, r) => {
+        r = ((r % DIR_COUNT) + DIR_COUNT) % DIR_COUNT;
+        db <<= r;
+        return (RDLU & (db | (db >> DIR_COUNT)));
+    }
+    
+    const oppDir = db => dirBitRot(db, 2);
+    
+    // copy/paste, not modified for this particular usage
+    const bitCount = n => {
+        n = n - ((n >> 1) & 0x55555555);
+        n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+        return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+    }
+    
     // grid symbol -> directions to neigbouring cells
     const MAP_SYM2DIR = new Map([
-        [CORNER, R|D|L|U],
-        [H_LINE, R|L],
-        [V_LINE, D|U],
+        [CORNER, RDLU],
+        [H_LINE, RL],
+        [V_LINE, DU],
         [BACK, 0]
     ]);
     
-    if (MAP_SYM2DIR.length < 4) throw new Error('{CORNER, H_LINE, V_LINE, BACK} must be distinct');
+    if (MAP_SYM2DIR.size < 4) throw new Error('{CORNER, H_LINE, V_LINE, BACK} must be distinct');
     
     // directions to neigbouring cells -> grid symbol
     const MAP_DIR2SYM = new Map(
@@ -50,12 +71,6 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     const CONTOURS = [];
     // Can't have closed countours with single row/column
     if ((SYM_GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
-    // util
-    const bitCount = n => {
-        n = n - ((n >> 1) & 0x55555555);
-        n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-        return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
-    }
     
     // Normalize the grid
     const GRID = SYM_GRID.map(row => row.map(sym2dir));
