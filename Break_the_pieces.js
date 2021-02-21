@@ -6,7 +6,7 @@
  * Trace the closed contours in a square grid
  * 
  * @param SYM_GRID Array[Array]
- * @param designate {
+ * @param designate object {
  *      CORNER : The grid element for contour corner,
  *      H_LINE : The grid element for horiz. line,
  *      V_LINE : The grid element for vert. line,
@@ -23,6 +23,9 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     
     const RL = R|L;
     const DU = D|U;
+    
+    const RD = R|D;
+    
     const RDLU = R|D|L|U
     
     const DIR_COUNT = 4;
@@ -65,17 +68,37 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     
     const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : CORNER;
+    // Normalize the grid
+    const GRID = SYM_GRID.map(row => row.map(sym2dir));
     
     const WIDTH = SYM_GRID.reduce((max, r) => Math.max(max, r.length), 0);
     
     const CONTOURS = [];
     // Can't have closed countours with single row/column
     if ((SYM_GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
-    
-    // Normalize the grid
-    const GRID = SYM_GRID.map(row => row.map(sym2dir));
     // Create empty grid with the dimensions of the input grid
     const getCanvas = () => Array(GRID.length).fill(0).map( () => Array(WIDTH).fill(0) );
+    
+    // Bounds check on GRID[row][col]
+    const cellAt = (row, col, rel = [0, 0]) => {
+        row += rel[0];
+        col += rel[1];
+        if (
+            row < 0 || row >= GRID.length || col < 0 || col > GRID[row].length
+        ) return 0;
+        return GRID[row][col];
+    }
+    // returns bitfield of the directions to the cells connected to this one
+    const connectsTo = (row, col) => {
+        const dirs = cellAt(row, col);
+        let connects = 0;
+        for (let b = U; b; b >>= 1) {
+            if (
+                (dirs & b) && (cellAt(row, col, dir2grid(b)) & oppDir(b))
+            ) connects |= b;
+        }
+        return connects;
+    }
     
     
     
