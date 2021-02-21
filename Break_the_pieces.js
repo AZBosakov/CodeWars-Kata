@@ -91,6 +91,7 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // returns bitfield of the directions to the cells connected to this one
     const connectsTo = (row, col) => {
         const dirs = cellAt(row, col);
+        if (! dirs) return 0;
         let connects = 0;
         for (let b = U; b; b >>= 1) {
             if (
