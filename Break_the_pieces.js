@@ -14,11 +14,18 @@
  * }
  */
 const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
-    // Directions to neighbouring cells
-    const R = 1 << 0;
-    const D = 1 << 1;
-    const L = 1 << 2;
-    const U = 1 << 3;
+    // Directions to neighbouring cells, CW from Right, bits
+    const R = 1;        // 0001
+    const D = R << 1;   // 0010
+    const L = D << 1;   // 0100
+    const U = L << 1;   // 1000
+    
+    // dir. bit -> [+row, +col]
+    // WARNING: Depends on the direction bit ordering above.
+    const dir2grid = db => [
+        ((db & D) >> 1) - ((db & U) >> 3),
+        (db & R) - ((db & L) >> 2)
+    ];
     
     // grid symbol -> directions to neigbouring cells
     const MAP_SYM2DIR = new Map([
@@ -55,9 +62,11 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Create empty grid with the dimensions of the input grid
     const getCanvas = () => Array(GRID.length).fill(0).map( () => Array(WIDTH).fill(0) );
     
+    
+    
     // TEST {
     let shape = GRID.map(row => row.map(dir2sym));
-    CONTOURS.push({x: 0, y: 0, shape});
+    CONTOURS.push({x: 0, y: 0, contour: shape});
     // } TEST
     return CONTOURS;
 }
@@ -72,7 +81,7 @@ const breakPieces = shape => {
         V_LINE: '|',
         BACK: ' '
     }).map(
-        ({shape}) => shape.map(
+        ({contour}) => contour.map(
             row => row.join('')
         ).join('\n')
     );
