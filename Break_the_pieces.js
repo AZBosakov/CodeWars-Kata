@@ -15,19 +15,16 @@
  */
 const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Directions to neighbouring cells
-    const N = 1 << 0;
-    const E = 1 << 1;
-    const S = 1 << 2;
-    const W = 1 << 3;
-    
-    const H = E|W;
-    const V = N|S;
+    const R = 1 << 0;
+    const D = 1 << 1;
+    const L = 1 << 2;
+    const U = 1 << 3;
     
     // grid symbol -> directions to neigbouring cells
     const MAP_SYM2DIR = new Map([
-        [CORNER, H|V],
-        [H_LINE, H],
-        [V_LINE, V],
+        [CORNER, R|D|L|U],
+        [H_LINE, R|L],
+        [V_LINE, D|U],
         [BACK, 0]
     ]);
     
@@ -47,7 +44,7 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Can't have closed countours with single row/column
     if ((SYM_GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
     // util
-    const bitCount n => {
+    const bitCount = n => {
         n = n - ((n >> 1) & 0x55555555);
         n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
         return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
