@@ -108,25 +108,16 @@ const sqGridContours = (() => {
             }
         }
         
-        
-        
-        // TEST {
-        CONTOURS.push({x: 0, y: 0, contour: GRID.map(r => [...r])});
-        
-    //     console.log(GRID.map(row => row.map(bitCount).join('')).join('\n'));
-        // } TEST
-        
-        
         /**
          * Start from an upper left corner, go to the right,
          * turn always right, and if going up when hitting the starting cell,
          * add the traced contour to CONTOURS
          */
         const trace = (row, col) => {
-            const rowStart = row;
-            const colStart = col;
-            const rows = [row, row];
-            const cols = [col, col];
+            const rowStart = row; // up.left corner coords
+            const colStart = col; // -//-
+            const rows = [row, row]; // the bounding box
+            const cols = [col, col]; // -//-
             let to = R;
             const canvas = getCanvas();
             canvas[row][col] = R|D;
@@ -134,10 +125,19 @@ const sqGridContours = (() => {
                 const [dr, dc] = dir2grid(to);
                 row += dr;
                 col += dc;
+                rows[0] = Math.min(row, rows[0]);
+                cols[0] = Math.min(col, cols[0]);
+                rows[1] = Math.max(row, rows[1]);
+                cols[1] = Math.max(col, cols[1]);
                 if (rowStart == row && colStart == col) {
                     if (U == to) {
-                        // TODO: trim
-                        CONTOURS.push({x:0, y:0, contour: canvas});
+                        CONTOURS.push({
+                            row: rows[0],
+                            col: cols[0],
+                            contour: canvas.slice(rows[0], rows[1]+1).map(
+                                row => row.slice(cols[0], cols[1]+1)
+                            )
+                        });
                     }
                     break;
                 }
