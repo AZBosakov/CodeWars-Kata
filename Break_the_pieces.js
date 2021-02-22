@@ -192,10 +192,8 @@ const breakPieces = shape => {
     
     const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : '+';
-    // Normalize the grid
-    const GRID = grid.map(row => row.map(sym2dir));
     
-    return sqGridContours(grid.map(row => row.map(sym2dir))).map(
+    return sqGridContours( grid.map(row => row.map(sym2dir)) ).map(
         ({contour}) => contour.map(
             row => row.map(dir2sym).join('').trimEnd()
         ).join('\n')
