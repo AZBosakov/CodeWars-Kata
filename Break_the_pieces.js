@@ -6,7 +6,7 @@ const DIR_BITS = Symbol.for('DIR_BITS');
 /**
  * Trace the closed contours in a square grid
  * 
- * @param GRID Array[Array] Array of bitfields of the directions to neighbouring cells
+ * @param GRID Array[Array] Array of bitfields of directions to connected cells
  */
 const sqGridContours = (() => {
     // Directions to neighbouring cells, CW from Right, bits
@@ -194,12 +194,10 @@ const breakPieces = shape => {
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : '+';
     // Normalize the grid
     const GRID = grid.map(row => row.map(sym2dir));
-        
-        
     
     return sqGridContours(grid.map(row => row.map(sym2dir))).map(
         ({contour}) => contour.map(
-            row => row.map(dir2sym).join('')
+            row => row.map(dir2sym).join('').trimEnd()
         ).join('\n')
     );
 };
