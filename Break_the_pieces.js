@@ -88,7 +88,7 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
         ) return 0;
         return GRID[row][col];
     }
-    // returns bitfield of the directions to the cells connected to this one
+    // SET and RETURN the bitfield of the directions to the cells connected to this one
     const connects = (row, col) => {
         const dirs = cellAt(row, col);
         if (! dirs) return 0;
@@ -98,14 +98,17 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
                 (dirs & b) && (cellAt(row, col, dir2grid(b)) & oppDir(b))
             ) conn |= b;
         }
+        GRID[row][col] = conn; // side effect
         return conn;
     }
     
     // Clear single-connected cells, starting from (row, col)
     const clearLoose = (row, col) => {
         let conn;
+        let dc;
         while (
-            1 == bitCount( conn = connects(row, col) )
+            (conn = connects(row, col)) && 
+            (bitCount(conn) == 1)
         ) {
             const nextTo = dir2grid(conn);
             GRID[row][col] = 0;
@@ -117,9 +120,6 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // Clear loose ends pass
     for (let row = 0; row < GRID.length; row++) {
         for (let col = 0; col < GRID[row].length; col++) {
-            
-            console.log('connects', row, col, connects(row, col) );
-            
             clearLoose(row, col);
         }
     }
@@ -134,6 +134,8 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
     // TEST {
     let shape = GRID.map(row => row.map(dir2sym));
     CONTOURS.push({x: 0, y: 0, contour: shape});
+    
+//     console.log(GRID.map(row => row.map(bitCount).join('')).join('\n'));
     // } TEST
     return CONTOURS;
 }
