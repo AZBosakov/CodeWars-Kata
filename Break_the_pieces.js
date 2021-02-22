@@ -21,7 +21,7 @@ const sqGridContours = (() => {
     
     const RD = R|D;
     
-    const RDLU = R|D|L|U
+    const RDLU = R|D|L|U;
     
     const DIR_COUNT = 4;
     
@@ -193,9 +193,12 @@ const breakPieces = shape => {
     const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
     const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : '+';
     
+    // Looks like there are no .trimEnd() on CW,
+    // .match(/((.*[^ ])?) *$/)[1]
+    
     return sqGridContours( grid.map(row => row.map(sym2dir)) ).map(
         ({contour}) => contour.map(
-            row => row.map(dir2sym).join('').trimEnd()
+            row => row.map(dir2sym).join('').match(/((.*[^ ])?) *$/)[1]
         ).join('\n')
     );
 };
