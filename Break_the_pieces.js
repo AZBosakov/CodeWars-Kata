@@ -32,6 +32,7 @@ const sqGridContours = (() => {
     ];
     
     const dirBitRot = (db, r) => {
+        db &= RDLU;
         r = ((r % DIR_COUNT) + DIR_COUNT) % DIR_COUNT;
         db <<= r;
         return (RDLU & (db | (db >> DIR_COUNT)));
@@ -106,15 +107,38 @@ const sqGridContours = (() => {
                 clearLoose(row, col);
             }
         }
-        
+        /**
+         * Start from an upper left corner, go to the right,
+         * turn always right, and if going up when hitting the starting cell,
+         * add the traced contour to CONTOURS
+         */
         const trace = (row, col) => {
-            
+            const rowStart = row;
+            const colStart = col;
+            const rows = [row, row];
+            const cols = [col, col];
+            let curDir = R;
+            const canvas = getCanvas();
+            canvas[row][col] = R|D;
+            while (true) {
+                const [dr, dc] = dir2grid(curDir);
+                row += dr;
+                col += dc;
+                if (rowStart == row && colStart == col) {
+                    if (U == curDir) {
+                        // TODO: trim
+                        CONTOURS.push({x:0, y:0, contour: canvas});
+                    }
+                    break;
+                }
+                
+            }
         }
         
         // Trace shapes pass
         for (let row = 0; row < GRID.length; row++) {
             for (let col = 0; col < GRID[row].length; col++) {
-                if (RD == (cellAt(row, col) & RD)) trace(row, col);
+//                 if (RD == (cellAt(row, col) & RD)) trace(row, col);
             }
         }
         
