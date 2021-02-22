@@ -107,6 +107,16 @@ const sqGridContours = (() => {
                 clearLoose(row, col);
             }
         }
+        
+        
+        
+        // TEST {
+        CONTOURS.push({x: 0, y: 0, contour: GRID.map(r => [...r])});
+        
+    //     console.log(GRID.map(row => row.map(bitCount).join('')).join('\n'));
+        // } TEST
+        
+        
         /**
          * Start from an upper left corner, go to the right,
          * turn always right, and if going up when hitting the starting cell,
@@ -136,6 +146,11 @@ const sqGridContours = (() => {
                 for (to = dirBitRot(from, -1); !(to & conn); to = dirBitRot(to, -1)) ;
                 canvas[row][col] = from|to;
             }
+            
+            // Clear the traced contour from the grid, to avoid duplicates on concave shapes
+            GRID[rowStart][colStart] = 0;
+            clearLoose(rowStart, colStart + 1);
+            clearLoose(rowStart + 1, colStart);
         }
         
         // Trace shapes pass
@@ -144,12 +159,6 @@ const sqGridContours = (() => {
                 if (RD == (GRID[row][col] & RD)) trace(row, col);
             }
         }
-        
-        // TEST {
-        CONTOURS.push({x: 0, y: 0, contour: GRID});
-        
-    //     console.log(GRID.map(row => row.map(bitCount).join('')).join('\n'));
-        // } TEST
         
         return CONTOURS;
     }
