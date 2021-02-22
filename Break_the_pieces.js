@@ -6,13 +6,7 @@ const DIR_BITS = Symbol.for('DIR_BITS');
 /**
  * Trace the closed contours in a square grid
  * 
- * @param SYM_GRID Array[Array]
- * @param designate object {
- *      CORNER : The grid element for contour corner,
- *      H_LINE : The grid element for horiz. line,
- *      V_LINE : The grid element for vert. line,
- *      BACK : The grid element for empty space (background),
- * }
+ * @param GRID Array[Array] Array of bitfields of the directions to neighbouring cells
  */
 const sqGridContours = (() => {
     // Directions to neighbouring cells, CW from Right, bits
@@ -53,32 +47,12 @@ const sqGridContours = (() => {
         return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
     }
     
-    
-    const tracer = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
-        // grid symbol -> directions to neigbouring cells
-        const MAP_SYM2DIR = new Map([
-            [CORNER, RDLU],
-            [H_LINE, RL],
-            [V_LINE, DU],
-            [BACK, 0]
-        ]);
-        
-        if (MAP_SYM2DIR.size < 4) throw new Error('{CORNER, H_LINE, V_LINE, BACK} must be distinct');
-        
-        // directions to neigbouring cells -> grid symbol
-        const MAP_DIR2SYM = new Map(
-            [...MAP_SYM2DIR.entries()].map( ([sym, dir]) => [dir, sym] )
-        );
-        
-        const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
-        const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : CORNER;
-        // Normalize the grid
-        const GRID = SYM_GRID.map(row => row.map(sym2dir));
-        const WIDTH = SYM_GRID.reduce((max, r) => Math.max(max, r.length), 0);
+    const tracer = (GRID) => {
+        const WIDTH = GRID.reduce((max, r) => Math.max(max, r.length), 0);
         
         const CONTOURS = [];
         // Can't have closed countours with single row/column
-        if ((SYM_GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
+        if ((GRID.length < 2) || (WIDTH < 2)) return CONTOURS;
         // Create empty grid with the dimensions of the input grid
         const getCanvas = () => Array(GRID.length).fill(0).map( () => Array(WIDTH).fill(0) );
         
@@ -93,7 +67,7 @@ const sqGridContours = (() => {
         }
         // SET and RETURN the bitfield of the directions to the cells connected to this one
         const connects = (row, col) => {
-            const dirs = cellAt(row, col);
+            const dirs = cellAt(row, col) & RDLU;
             if (! dirs) return 0;
             let conn = 0;
             for (let b = U; b; b >>= 1) {
@@ -105,7 +79,7 @@ const sqGridContours = (() => {
             return conn;
         }
         
-        // Clear single-connected cells, starting from (row, col)
+        // Clear 0- and single-connected cells, starting from (row, col)
         const clearLoose = (row, col) => {
             let conn;
             let dc;
@@ -120,7 +94,13 @@ const sqGridContours = (() => {
             }
         }
         
-        // Clear loose ends pass
+        /**
+         * Clear the loose ends, if any, e.g.:
+         * --+  |             
+         *  ++-++++    ==>    +--+--+
+         *  | ++--|           |  |  |
+         *  +--+--+           +--+--+
+         */
         for (let row = 0; row < GRID.length; row++) {
             for (let col = 0; col < GRID[row].length; col++) {
                 clearLoose(row, col);
@@ -139,8 +119,7 @@ const sqGridContours = (() => {
         }
         
         // TEST {
-        let shape = GRID.map(row => row.map(dir2sym));
-        CONTOURS.push({x: 0, y: 0, contour: shape});
+        CONTOURS.push({x: 0, y: 0, contour: GRID});
         
     //     console.log(GRID.map(row => row.map(bitCount).join('')).join('\n'));
         // } TEST
@@ -155,15 +134,36 @@ const sqGridContours = (() => {
 
 const breakPieces = shape => {
     const grid = shape.split('\n').map(row => row.split(''));
+    const {R, D, L, U} = sqGridContours[DIR_BITS];
     
-    return sqGridContours(grid, {
-        CORNER: '+',
-        H_LINE: '-',
-        V_LINE: '|',
-        BACK: ' '
-    }).map(
+    const CORNER = '+';
+    const H_LINE = '-';
+    const V_LINE = '|';
+    const BACK = ' ';
+    
+    // grid symbol -> directions to neigbouring cells
+    const MAP_SYM2DIR = new Map([
+        [CORNER, R|D|L|U],
+        [H_LINE, R|L],
+        [V_LINE, D|U],
+        [BACK, 0]
+    ]);
+    
+    // directions to neigbouring cells -> grid symbol
+    const MAP_DIR2SYM = new Map(
+        [...MAP_SYM2DIR.entries()].map( ([sym, dir]) => [dir, sym] )
+    );
+    
+    const sym2dir = sym => MAP_SYM2DIR.has(sym) ? MAP_SYM2DIR.get(sym) : 0;
+    const dir2sym = dir => MAP_DIR2SYM.has(dir) ? MAP_DIR2SYM.get(dir) : '+';
+    // Normalize the grid
+    const GRID = grid.map(row => row.map(sym2dir));
+        
+        
+    
+    return sqGridContours(grid.map(row => row.map(sym2dir))).map(
         ({contour}) => contour.map(
-            row => row.join('')
+            row => row.map(dir2sym).join('')
         ).join('\n')
     );
 };
