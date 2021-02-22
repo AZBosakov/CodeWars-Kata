@@ -124,10 +124,14 @@ const sqGridContours = (SYM_GRID, {CORNER, H_LINE, V_LINE, BACK}) => {
         }
     }
     
+    const trace = (row, col) => {
+        
+    }
+    
     // Trace shapes pass
     for (let row = 0; row < GRID.length; row++) {
         for (let col = 0; col < GRID[row].length; col++) {
-            
+            if (RD == (cellAt(row, col) & RD)) trace(row, col);
         }
     }
     
