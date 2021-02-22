@@ -57,7 +57,7 @@ const sqGridContours = (() => {
         // Create empty grid with the dimensions of the input grid
         const getCanvas = () => Array(GRID.length).fill(0).map( () => Array(WIDTH).fill(0) );
         
-        // Bounds check on GRID[row][col]
+        // Bounds checked GRID[row][col]
         const cellAt = (row, col, rel = [0, 0]) => {
             row += rel[0];
             col += rel[1];
@@ -117,28 +117,31 @@ const sqGridContours = (() => {
             const colStart = col;
             const rows = [row, row];
             const cols = [col, col];
-            let curDir = R;
+            let to = R;
             const canvas = getCanvas();
             canvas[row][col] = R|D;
             while (true) {
-                const [dr, dc] = dir2grid(curDir);
+                const [dr, dc] = dir2grid(to);
                 row += dr;
                 col += dc;
                 if (rowStart == row && colStart == col) {
-                    if (U == curDir) {
+                    if (U == to) {
                         // TODO: trim
                         CONTOURS.push({x:0, y:0, contour: canvas});
                     }
                     break;
                 }
-                
+                const from = oppDir(to);
+                const conn = GRID[row][col];
+                for (to = dirBitRot(from, -1); !(to & conn); to = dirBitRot(to, -1)) ;
+                canvas[row][col] = from|to;
             }
         }
         
         // Trace shapes pass
         for (let row = 0; row < GRID.length; row++) {
             for (let col = 0; col < GRID[row].length; col++) {
-//                 if (RD == (cellAt(row, col) & RD)) trace(row, col);
+                if (RD == (GRID[row][col] & RD)) trace(row, col);
             }
         }
         
