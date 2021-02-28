@@ -53,17 +53,18 @@ const calc = (() => {
     
     return expression => {
         expression = expression.trim();
-        let curToken = T_START;
+        let curType = T_START;
+        let curPos = 0;
         
         const tokens = [];
         
-        while (curToken != T_END) {
-            const allowed = bits(ALLOWED_AFTER.get(curToken));
-            for (let tryToken of allowed) {
-                
+        while (curType != T_END) {
+            const allowed = bits(TOKEN_TYPES.get(curType).next);
+            for (let tType of allowed) {
+                const tryToken = TOKEN_TYPES.get(tType);
             }
         }
         
-        
+        return tokens; // TEST
     }
 })();
