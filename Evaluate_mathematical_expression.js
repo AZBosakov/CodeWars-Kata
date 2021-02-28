@@ -35,13 +35,20 @@ const calc = (() => {
     // Typing saver
     const t = (match, next) => ({match, next});
     const TOKEN_TYPES = new Map([
-        [ T_START,  t('^', T_POS_N|T_UNARY|T_OPEN) ],
-        [ T_UNARY,  t(Object.keys(UNARY).join('|'), T_POS_N|T_OPEN) ],
-        [ T_POS_N,  t('\\d+(?:\\.\\d+)?', T_INFIX|T_CLOSE|T_END) ],
-        [ T_INFIX,  t(Object.keys(INFIX).join('|'), T_UNARY|T_POS_N|T_OPEN) ],
-        [ T_OPEN,   t('(', T_POS_N|T_UNARY|T_OPEN) ],
-        [ T_CLOSE,  t(')', T_INFIX|T_CLOSE) ],
-        [ T_END,    t('^$', 0) ],
+        [ T_START, t(
+            '^', T_POS_N|T_UNARY|T_OPEN )],
+        [ T_UNARY, t(
+            Object.keys(UNARY).join('|'), T_POS_N|T_OPEN )],
+        [ T_POS_N, t(
+            '\\d+(?:\\.\\d+)?', T_INFIX|T_CLOSE|T_END )],
+        [ T_INFIX, t(
+            Object.keys(INFIX).join('|'), T_UNARY|T_POS_N|T_OPEN )],
+        [ T_OPEN, t(
+            '(', T_POS_N|T_UNARY|T_OPEN )],
+        [ T_CLOSE, t(
+            ')', T_INFIX|T_CLOSE )],
+        [ T_END, t(
+            '^$', 0 )],
     ]);
     
     return expression => {
