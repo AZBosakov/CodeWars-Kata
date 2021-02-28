@@ -8,15 +8,6 @@ const calc = (() => {
     ] = [...Array(32).keys()].map(e => 1 << e);
     // No WhiteSpace allowed after
     const NO_WS_AFTER = T_UNARY;
-    
-    const ALLOWED_AFTER = new Map([
-        [ T_START,  T_POS_N|T_UNARY|T_OPEN  ],
-        [ T_UNARY,  T_POS_N|T_OPEN          ],
-        [ T_POS_N,  T_INFIX|T_CLOSE|T_END   ],
-        [ T_INFIX,  T_UNARY|T_POS_N|T_OPEN  ],
-        [ T_OPEN,   T_POS_N|T_UNARY|T_OPEN  ],
-        [ T_CLOSE,  T_INFIX|T_END           ],
-    ]);
     // UTIL: Destruct the bits in an int to array of single bit ints
     function * bits(n) {
         let b;
@@ -41,18 +32,31 @@ const calc = (() => {
     }
     // Operators }
     
-    const MATCH = new Map([
-        [ T_UNARY,  Object.keys(UNARY).join('|')  ],
-        [ T_POS_N,  '\\d+(?:\\.\\d+)?'            ],
-        [ T_INFIX,  Object.keys(INFIX).join('|')  ],
-        [ T_OPEN,   '('                           ],
-        [ T_CLOSE,  ')'                           ],
-        [ T_END,    '^$'                          ],
+    // Typing saver
+    const t = (match, next) => ({match, next});
+    const TOKEN_TYPES = new Map([
+        [ T_START,  t('^', T_POS_N|T_UNARY|T_OPEN) ],
+        [ T_UNARY,  t(Object.keys(UNARY).join('|'), T_POS_N|T_OPEN) ],
+        [ T_POS_N,  t('\\d+(?:\\.\\d+)?', T_INFIX|T_CLOSE|T_END) ],
+        [ T_INFIX,  t(Object.keys(INFIX).join('|'), T_UNARY|T_POS_N|T_OPEN) ],
+        [ T_OPEN,   t('(', T_POS_N|T_UNARY|T_OPEN) ],
+        [ T_CLOSE,  t(')', T_INFIX|T_CLOSE) ],
+        [ T_END,    t('^$', 0) ],
     ]);
     
     return expression => {
         expression = expression.trim();
         let curToken = T_START;
+        
+        const tokens = [];
+        
+        while (curToken != T_END) {
+            const allowed = bits(ALLOWED_AFTER.get(curToken));
+            for (let tryToken of allowed) {
+                
+            }
+        }
+        
         
     }
 })();
