@@ -119,7 +119,7 @@ const closestPair = (() => {
         if (points.length < 2) throw new Error("No points to compare");
         // Copy & sort-by-X
         const psByX = new ArrayRange(
-            points.map(([...c]) => c).sort(sortByX)
+            points.map(xy => [...xy]).sort(sortByX)
         );
         
         const {p0, p1} = search(psByX);
