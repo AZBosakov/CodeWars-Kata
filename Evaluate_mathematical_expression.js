@@ -1,6 +1,6 @@
 // https://www.codewars.com/kata/52a78825cdfc2cfc87000005/train/javascript
 
-// Exceeds the kata requirements as an excersize. Added some validation for example.
+// Exceeds the kata requirements as an excersize, eg. added some validation.
 
 'use strict';
 
@@ -66,29 +66,35 @@ const calc = (() => {
         expression = expression.trim();
         let curType = T_START;
         
-        const cmds = [{pos: curPos, cmd: TOKEN_TYPES.get(T_START).toCmd()}];
+        const cmds = [TOKEN_TYPES.get(T_START).toCmd()];
         
+        let parens = []; // Check for unbalanced parentheses
         while (curType != T_END) {
             const allowed = bits(TOKEN_TYPES.get(curType).next);
-            let tokenMatched = false;
+            let typeMatched = 0;
+            let strVal;
             for (let tType of allowed) {
                 const tDescr = TOKEN_TYPES.get(tType);
                 const matching = expression.match(RegExp(`^(${tDescr.match})(\\s*)(.*)`));
                 if (! matching) continue;
-                const [, strVal] = matching;
+                strVal = matching[1];
                 const [space, rest] = matching.slice(-2);
                 if ((tType & NO_WS_AFTER) && space.length) continue;
-                cmds.push({pos: curPos, cmd: tDescr.toCmd(strVal)});
-                curType = tType;
-                tokenMatched = true;
+                cmds.push(tDescr.toCmd(strVal));
+                typeMatched = curType = tType;
                 curPos += strVal.length + space.length;
                 expression = rest;
                 break;
             }
-            if (! tokenMatched) throw new Error(`Invalid token at pos. ${curPos}`);
+            if (! typeMatched) throw new Error(`Invalid token '${strVal}' at ${curPos}`);
+            if (T_OPEN == typeMatched) parens.push(curPos);
+            if (T_CLOSE == typeMatched && parens.pop() === undefined) {
+                throw new Error(`Closing parenthesis without matching oppening one at ${curPos}`);
+            }
         }
-        // Check for unbalanced parentheses
-        let parens = [];
+        if (parens.length) {
+            throw new Error(`Oppening parentheses without matching closing ones at ${parens}`);
+        }
         
         return cmds; // TEST
     }
