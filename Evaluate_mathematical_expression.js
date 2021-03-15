@@ -1,6 +1,6 @@
 // https://www.codewars.com/kata/52a78825cdfc2cfc87000005/train/javascript
 
-// Exceeds the kata requirements as an excersize, eg. added some validation.
+// Exceeds the kata requirements as an excersize: some validation, more funcs.
 
 'use strict';
 
@@ -30,11 +30,12 @@ const calc = (() => {
     const op = (func, prio, assoc = ASSOC_L) => Object.assign(func, {[PRIO]: prio, [ASSOC]: assoc});
     // Operators {
     const INFIX = {
-        '+': op((a, b) => a+b, 14),
-        '-': op((a, b) => a-b, 14),
-        '*': op((a, b) => a*b, 15),
-        '/': op((a, b) => a/b, 15),
-        '^': op((a, b) => a**b, 16, ASSOC_R),
+        '+': op((a, b) => a + b, 14),
+        '-': op((a, b) => a - b, 14),
+        '*': op((a, b) => a * b, 15),
+        '/': op((a, b) => a / b, 15),
+        '%': op((a, b) => a % b, 15),
+        '^': op((a, b) => a ** b, 16, ASSOC_R),
     };
     
     const UNARY = {
