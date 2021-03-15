@@ -23,19 +23,23 @@ const calc = (() => {
     const PRIO = Symbol.for('OPERATOR_PRIORITY');
     const ASSOC = Symbol.for('OPERATOR_ASSOCIATIVITY');
     
+    // Priorities taken from
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+    
     // Typing saver
     const op = (func, prio, assoc = ASSOC_L) => Object.assign(func, {[PRIO]: prio, [ASSOC]: assoc});
     // Operators {
     const INFIX = {
-        '+': op((a, b) => a+b, 0),
-        '-': op((a, b) => a-b, 0),
-        '*': op((a, b) => a*b, 1),
-        '/': op((a, b) => a/b, 1),
-        '^': op((a, b) => a**b, 2, ASSOC_R),
+        '+': op((a, b) => a+b, 14),
+        '-': op((a, b) => a-b, 14),
+        '*': op((a, b) => a*b, 15),
+        '/': op((a, b) => a/b, 15),
+        '^': op((a, b) => a**b, 16, ASSOC_R),
     };
     
     const UNARY = {
-        '-': op(a => -a, 1, ASSOC_R)
+        '+': op(a => a, 17, ASSOC_R),
+        '-': op(a => -a, 17, ASSOC_R)
     }
     // Operators }
     
@@ -97,10 +101,15 @@ const calc = (() => {
         }
         // } Parse & Validate
         
-        // Evaluate; Shunting yard algorithm
+        // Evaluate - Shunting yard algorithm
         // Stacks
         const nums = [];
         const ops = [];
+        
+        const peekOp = () =>
+            (typeof ops[ops.length - 1] === 'function' && ops[ops.length - 1]) ||
+            {[PRIO]: -1, [ASSOC]: ASSOC_R}
+        ;
         
         const applyOp = func => {
             const args = nums.splice(-func.length, func.length);
@@ -110,17 +119,30 @@ const calc = (() => {
         const handle = {
             number: n => nums.push(n),
               
-            function: f => {},
+            function: f => {
+                let top;
+                while (
+                    top = peekOp(),
+                    (top[PRIO] > f[PRIO]) ||
+                    (f[ASSOC] == ASSOC_L && top[PRIO] == f[PRIO])
+                ) applyOp(ops.pop());
+                ops.push(f);
+            },
             
             symbol: s => {
                 if (PAREN_OPEN == s) {
                     ops.push(s);
                     return;
                 }
-                
+                let op;
+                while ( (op = ops.pop()) != PAREN_OPEN) applyOp(op);
             }
         }
         
-        return cmds; // TEST
+        for (let cmd of cmds) {
+            handle[typeof cmd](cmd);
+        }
+        
+        return nums[0];
     }
 })();
