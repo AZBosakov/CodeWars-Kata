@@ -67,7 +67,7 @@ const calc = (() => {
         let curType = T_START;
         
         const cmds = [TOKEN_TYPES.get(T_START).toCmd()];
-        
+        // Parse & Validate {
         let parens = []; // Check for unbalanced parentheses
         while (curType != T_END) {
             const allowed = bits(TOKEN_TYPES.get(curType).next);
@@ -94,6 +94,31 @@ const calc = (() => {
         }
         if (parens.length) {
             throw new Error(`Oppening parentheses without matching closing ones at ${parens}`);
+        }
+        // } Parse & Validate
+        
+        // Evaluate; Shunting yard algorithm
+        // Stacks
+        const nums = [];
+        const ops = [];
+        
+        const applyOp = func => {
+            const args = nums.splice(-func.length, func.length);
+            nums.push(func(...args));
+        }
+        
+        const handle = {
+            number: n => nums.push(n),
+              
+            function: f => {},
+            
+            symbol: s => {
+                if (PAREN_OPEN == s) {
+                    ops.push(s);
+                    return;
+                }
+                
+            }
         }
         
         return cmds; // TEST
