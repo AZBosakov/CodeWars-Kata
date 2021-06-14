@@ -21,36 +21,62 @@
  * If successful, returns array of type [rank0_file, rank1_file, rank2_file, ...]
  * 
  * @param int size : 1..32 - The size of the board - size x size
- * @param array|false fixQueen - The [rank, file] (0-based) of the fixed queen if given
+ * @param array[array] fixQueens - The [[rank, file], ...] (0-based) of the fixed queens
  * @return array|false - The array of queens' positions or false if no solution
  */
-const nQueenSolver_max32 = (size, fixQueen = false) => {
-    // Ranks will be represented as bitfields of attacked squares, so max 32 files
+const nQueenSolver_max32 = (size, fixQueens = []) => {
+    // Ranks will be represented as bitfields of attacked squares, so max 32x32
     const JS_INT_BITS = 32;
     const MAX_BIT = JS_INT_BITS - 1;
     
     if (JS_INT_BITS < size) throw new Error(`Size too big: ${size}. Max size: ${JS_INT_BITS}`);
-    if (1 > size) throw new Error(`Invalid size: ${size}. Must be positive int`);
+    if (1 > size) throw new Error(`Invalid size: ${size}. Must be [1..${JS_INT_BITS}]`);
     
     const LAST_Q = size - 1;
-    if (fixQueen[0] > LAST_Q || fixQueen[1] > LAST_Q) throw new Error(`Invalid position: ${position}`);
     
     if (1 == size) return [0];
     if (4 > size) return false;
     
     // Mark the bits above 'LAST_Q' as attacked
-    const initSafe = JS_INT_BITS == size ? 0 : ((1 << MAX_BIT) >> (MAX_BIT - size));
-    const attackedInit = (new Uint32Array(size)).fill(initSafe);
-    const fixQRank = fixQueen ? fixQueen[0] : -1;
-    const fixQFile = fixQueen ? (1 << fixQueen[1]) : 0;
+    // E.g. for size 8 => bits 0-7 == 0, 8-31 == 1
+    const attackedInit = (new Uint32Array(size)).fill(
+        (JS_INT_BITS == size) ? 0 : ~((1 << size) - 1)
+    );
+    if (fixQueens.length > size) return false; // Too many queens
     
-    // Mark the squares, attacked by the fixed queen, if given
-    if (fixQueen) attackedInit.forEach((e, i, arr) => {
-        let diff = Math.abs(i - fixQRank);
-        if (diff) {
-            arr[i] |= (fixQFile | (fixQFile << diff) | (fixQFile >>> diff));
+    // Mark the squares, attacked by the fixed queens, if given
+    const marked = fixQueens.every(
+        ([r, f]) => {
+            if (
+                0 > r || r > LAST_Q ||
+                0 > f || f > LAST_Q
+            ) throw new Error(`Invalid fixed queen: [${r}, ${f}] - out of bounds`);
+            const fBit = 1 << f;
+            // if fixed queen attacked by another fixed queen
+            if (attackedInit[r] & fBit) return false;
+            attackedInit.forEach(
+                (e, i, arr) => {
+                    const diff = Math.abs(i - r);
+                    if (diff) {
+                        arr[i] |= fBit | (fBit << diff) | (fBit >>> diff);
+                    } else {
+                        arr[i] = ~fBit;
+                    }
+                }
+            );
+            return true;
         }
-    });
+    );
+    if (! marked) return false;
+    
+    console.log('\n' +
+        [...attackedInit].map(r => {
+            return (r & 0xffffff).toString(2).split('').reverse().join('');
+        }).join('\n') + '\n'
+    );
+    
+    return true;
+    
     
     /**
      *  =, ///, ||||, \\\\
@@ -89,7 +115,7 @@ const queens = (position, size) => {
     const file0based = files.indexOf(position[0]);
     const rank0based = ((position[1]|0) + 9) % 10;
     
-    const solution = nQueenSolver_max32(size, [rank0based, file0based]);
+    const solution = nQueenSolver_max32(size, [[rank0based, file0based]]);
     if (! solution) return false;
     return solution.map((f, r) => `${files[f]}${(r+1) % 10}`).join(',');
 }

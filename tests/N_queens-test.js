@@ -1,7 +1,7 @@
 console.log('Load N-queen test');
 
-const nqTest = (size, fixQueen = false) => {
-    const qs = nQueenSolver_max32(size, fixQueen)
+const nqTest = (size, fixQueens = []) => {
+    const qs = nQueenSolver_max32(size, fixQueens)
     const target = document.getElementById('target>');
     target.innerHTML = '';
     const table = document.createElement('table');
