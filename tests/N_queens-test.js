@@ -1,6 +1,7 @@
 console.log('Load N-queen test');
 
 const nqTest = (size, fixQueens = []) => {
+    const fixed = new Map(fixQueens);
     const qs = nQueenSolver_max32(size, fixQueens)
     const target = document.getElementById('target>');
     target.innerHTML = '';
@@ -17,6 +18,11 @@ const nqTest = (size, fixQueens = []) => {
                 fontSize: '1.5rem',
             });
             if (qs[r] == c) cell.textContent = '♛';
+            let fix = fixed.get(r);
+            if (fix === c) {
+                cell.style.color = '#500';
+            }
+            cell.setAttribute('title', `${r} : ${c}`);
             row.appendChild(cell);
         }
         table.appendChild(row);
