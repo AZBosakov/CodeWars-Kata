@@ -100,9 +100,9 @@ const nQueenSolver_max32 = (size, fixQueens = []) => {
 const queens = (position, size) => {
     const files = 'abcdefghijklmnopqrstuvwxyz';
     const file0based = files.indexOf(position[0]);
-    const rank0based = ((position[1]|0) + 9) % 10;
+    const rank0based = position.match(/\d+/)[0] - 1;
     
     const solution = nQueenSolver_max32(size, [[rank0based, file0based]]);
     if (! solution) return false;
-    return solution.map((f, r) => `${files[f]}${(r+1) % 10}`).join(',');
+    return solution.map((f, r) => `${files[f]}${(r+1)}`).join(',');
 }
