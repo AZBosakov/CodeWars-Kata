@@ -3,6 +3,8 @@
 /**
  * A slightly modified version of my previous solution - 5x faster.
  * 30 queens in ~3 sec on my ancient Celleron E3300 / Chrome 80
+ * 
+ * UPDATE: Support for list of fixed queens instead of just one, as an excersize
  */
 
 /**
@@ -25,6 +27,7 @@
  * @return array[int]|false - The array of queens' positions or false if no solution
  */
 const nQueenSolver_max32 = (size, fixQueens = []) => {
+    if (fixQueens.length > size) return false; // Too many queens
     // Ranks will be represented as bitfields of attacked squares, so max 32x32
     const JS_INT_BITS = 32;
     const MAX_BIT = JS_INT_BITS - 1;
@@ -34,15 +37,14 @@ const nQueenSolver_max32 = (size, fixQueens = []) => {
     
     const LAST_Q = size - 1;
     
-    if (1 == size) return [0];
-    if (4 > size) return false;
+    if (1 == size) return [0]; // 1x1 => a1
+    if (4 > size) return false; // 2x2, 2x3 => false
     
     // Mark the bits above 'LAST_Q' as attacked
     // E.g. for size 8 => bits 0-7 == 0, 8-31 == 1
     const attackedInit = (new Uint32Array(size)).fill(
         (JS_INT_BITS == size) ? 0 : ~((1 << size) - 1)
     );
-    if (fixQueens.length > size) return false; // Too many queens
     
     // Mark the squares, attacked by the fixed queens, if given
     const marked = fixQueens.every(
@@ -90,6 +92,7 @@ const nQueenSolver_max32 = (size, fixQueens = []) => {
     
     const result = placeQueen(0, 0, 0, 0);
     if (! result) return false;
+    // convert the array of single-bit ints => bit index
     return result.map(e => Math.log2(e));
 }
 
