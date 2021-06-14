@@ -69,7 +69,7 @@ const nQueenSolver_max32 = (size, fixQueens = []) => {
             return true;
         }
     );
-    if (! marked) return false;
+    if (! marked) return false; // Fixed queens attacking each other
     
     /**
      *  =, ///, ||||, \\\\
