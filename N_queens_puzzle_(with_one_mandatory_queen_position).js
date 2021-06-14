@@ -11,7 +11,7 @@
  * Return a single solution of the N-queens if any or false otherwise.
  * Limited to max. size 32 - the bit width of a JS int - 
  * due to the chosen algo. for checking safe squares -
- * attacked ones are represented as a bitmap.
+ * attacked ones are represented as 1s in a bitmap.
  * 
  * Recursively tries to places queens on safe squares on subsequent ranks.
  * On each placement, marks the next rank squares, attacked by this queen,
@@ -22,7 +22,7 @@
  * 
  * @param int size : 1..32 - The size of the board - size x size
  * @param array[array] fixQueens - The [[rank, file], ...] (0-based) of the fixed queens
- * @return array|false - The array of queens' positions or false if no solution
+ * @return array[int]|false - The array of queens' positions or false if no solution
  */
 const nQueenSolver_max32 = (size, fixQueens = []) => {
     // Ranks will be represented as bitfields of attacked squares, so max 32x32
@@ -69,28 +69,12 @@ const nQueenSolver_max32 = (size, fixQueens = []) => {
     );
     if (! marked) return false;
     
-    console.log('\n' +
-        [...attackedInit].map(r => {
-            return (r & 0xffffff).toString(2).split('').reverse().join('');
-        }).join('\n') + '\n'
-    );
-    
-    return true;
-    
-    
     /**
      *  =, ///, ||||, \\\\
      * (QueenRank, LeftDiagS, FileS, RightDiagS)
      * lds, fs, rds - the squares on this rank, attacked by the previously placed queens
      */
     const placeQueen = (qr, lds, fs, rds) => {
-        if (fixQRank == qr) {
-            if (LAST_Q == qr) return [fixQFile];
-            const nextQs = placeQueen(qr + 1,
-                ((lds | fixQFile) << 1), (fs | fixQFile), ((rds | fixQFile) >>> 1)
-            );
-            return nextQs ? [fixQFile, ...nextQs] : false;
-        }
         let attacked = attackedInit[qr] | lds | fs | rds;
         let safe = 0;
         while (safe = (~attacked & (attacked + 1))) {
