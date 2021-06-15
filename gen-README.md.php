@@ -8,7 +8,7 @@
  * If metadata format changed - delete cache file and recreate it
  */
 ?>
-# Some of my sollutions to CodeWars Katas
+## Some of my sollutions to CodeWars Katas
 
 <?php
 
@@ -81,9 +81,9 @@ foreach ($byKyu as $kyu => $kata) {
 }
 
 foreach ($byKyu as $kyu => $katas) {
-    echo "## $kyu Kyu\n";
+    echo "### $kyu Kyu\n";
     foreach ($katas as $kata) {
-        echo "### [{$kata['title']}]({$kata['url']})\n";
+        echo "#### [{$kata['title']}]({$kata['url']})\n";
         echo "|||\n";
         echo "|:-|:-|\n";
         foreach ($kata['files'] as $lang => $file) {
