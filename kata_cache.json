@@ -1,0 +1,162 @@
+{
+    "526c7b931666d07889000a3c": {
+        "url": "https://www.codewars.com/kata/526c7b931666d07889000a3c",
+        "files": {
+            "JavaScript": "Befunge_Interpreter.js"
+        },
+        "title": "Befunge Interpreter",
+        "kyu": 4
+    },
+    "526571aae218b8ee490006f4": {
+        "url": "https://www.codewars.com/kata/526571aae218b8ee490006f4",
+        "files": {
+            "JavaScript": "Bit_Counting.js"
+        },
+        "title": "Bit Counting",
+        "kyu": 6
+    },
+    "527fde8d24b9309d9b000c4e": {
+        "url": "https://www.codewars.com/kata/527fde8d24b9309d9b000c4e",
+        "files": {
+            "JavaScript": "Break_the_pieces.js"
+        },
+        "title": "Break the pieces",
+        "kyu": 2
+    },
+    "525f3eda17c7cd9f9e000b39": {
+        "url": "https://www.codewars.com/kata/525f3eda17c7cd9f9e000b39",
+        "files": {
+            "JavaScript": "Calculating_with_Functions.js"
+        },
+        "title": "Calculating with Functions",
+        "kyu": 5
+    },
+    "5376b901424ed4f8c20002b7": {
+        "url": "https://www.codewars.com/kata/5376b901424ed4f8c20002b7",
+        "files": {
+            "JavaScript": "Closest_pair_of_points_in_linearithmic_time.js"
+        },
+        "title": "Closest pair of points in linearithmic time",
+        "kyu": 3
+    },
+    "51fda2d95d6efda45e00004e": {
+        "url": "https://www.codewars.com/kata/51fda2d95d6efda45e00004e",
+        "files": {
+            "JavaScript": "Codewars_style_ranking_system.js"
+        },
+        "title": "Codewars style ranking system",
+        "kyu": 4
+    },
+    "54b42f9314d9229fd6000d9c": {
+        "url": "https://www.codewars.com/kata/54b42f9314d9229fd6000d9c",
+        "files": {
+            "JavaScript": "Duplicate_Encoder.js"
+        },
+        "title": "Duplicate Encoder",
+        "kyu": 6
+    },
+    "52a78825cdfc2cfc87000005/train/javascript": {
+        "url": "https://www.codewars.com/kata/52a78825cdfc2cfc87000005/train/javascript",
+        "files": {
+            "JavaScript": "Evaluate_mathematical_expression.js"
+        },
+        "title": "Training on Evaluate mathematical expression",
+        "kyu": 2
+    },
+    "5526fc09a1bbd946250002dc": {
+        "url": "https://www.codewars.com/kata/5526fc09a1bbd946250002dc",
+        "files": {
+            "JavaScript": "Find_The_Parity_Outlier.js"
+        },
+        "title": "Find The Parity Outlier",
+        "kyu": 6
+    },
+    "546d15cebed2e10334000ed9": {
+        "url": "https://www.codewars.com/kata/546d15cebed2e10334000ed9",
+        "files": {
+            "JavaScript": "Find_the_unknown_digit.js"
+        },
+        "title": "Find the unknown digit",
+        "kyu": 4
+    },
+    "52cf02cd825aef67070008fa": {
+        "url": "https://www.codewars.com/kata/52cf02cd825aef67070008fa",
+        "files": {
+            "JavaScript": "Help_the_general_decode_secret_enemy_messages.js"
+        },
+        "title": "Help the general decode secret enemy messages.",
+        "kyu": 3
+    },
+    "552c028c030765286c00007d": {
+        "url": "https://www.codewars.com/kata/552c028c030765286c00007d",
+        "files": {
+            "JavaScript": "IQ_Test.js"
+        },
+        "title": "IQ Test",
+        "kyu": 6
+    },
+    "514b92a657cdc65150000006": {
+        "url": "https://www.codewars.com/kata/514b92a657cdc65150000006",
+        "files": {
+            "JavaScript": "Multiples_of_3_or_5.js"
+        },
+        "title": "Multiples of 3 or 5",
+        "kyu": 6
+    },
+    "561bed6a31daa8df7400000e": {
+        "url": "https://www.codewars.com/kata/561bed6a31daa8df7400000e",
+        "files": {
+            "JavaScript": "N_queens_puzzle_(with_one_mandatory_queen_position).js"
+        },
+        "title": "N queens puzzle (with one mandatory queen position)",
+        "kyu": 4
+    },
+    "5254ca2719453dcc0b00027d": {
+        "url": "https://www.codewars.com/kata/5254ca2719453dcc0b00027d",
+        "files": {
+            "JavaScript": "Permutations.js"
+        },
+        "title": "Permutations",
+        "kyu": 4
+    },
+    "530e15517bc88ac656000716": {
+        "url": "https://www.codewars.com/kata/530e15517bc88ac656000716",
+        "files": {
+            "JavaScript": "Rot13.js"
+        },
+        "title": "Rot13",
+        "kyu": 5
+    },
+    "5296bc77afba8baa690002d7": {
+        "url": "https://www.codewars.com/kata/5296bc77afba8baa690002d7",
+        "files": {
+            "JavaScript": "Sudoku_Solver.js"
+        },
+        "title": "Sudoku Solver",
+        "kyu": 3
+    },
+    "555615a77ebc7c2c8a0000b8": {
+        "url": "https://www.codewars.com/kata/555615a77ebc7c2c8a0000b8",
+        "files": {
+            "JavaScript": "Vasya_-_Clerk.js"
+        },
+        "title": "Vasya - Clerk",
+        "kyu": 6
+    },
+    "523a86aa4230ebb5420001e1": {
+        "url": "https://www.codewars.com/kata/523a86aa4230ebb5420001e1",
+        "files": {
+            "JavaScript": "Where_my_anagrams_at.js"
+        },
+        "title": "Where my anagrams at?",
+        "kyu": 5
+    },
+    "525c7c5ab6aecef16e0001a5": {
+        "url": "https://www.codewars.com/kata/525c7c5ab6aecef16e0001a5",
+        "files": {
+            "JavaScript": "parseInt()_reloaded.js"
+        },
+        "title": "parseInt() reloaded",
+        "kyu": 4
+    }
+}
