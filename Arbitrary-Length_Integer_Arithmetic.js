@@ -12,7 +12,7 @@ const {
      * Use base 10^SUM_B_10E for add/sub, instead of individual digits
      * Choose SUM_B_10E so sum/diff of SUM_B_10E-digits < Number.MAX_SAFE_INTEGER
      */
-    const SUM_B_10E = 1; // 12;
+    const SUM_B_10E = 12;
     const SUM_MOD = 10**SUM_B_10E;
     const N_NINES = SUM_MOD - 1; // for the complements
     
