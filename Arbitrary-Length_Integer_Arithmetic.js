@@ -18,6 +18,9 @@ const {
     
     const MUL_BASE_10E = 8;
     
+    // UTIL: left pad with 0
+    const lp0 = (n, l = SUM_B_10E) => '0'.repeat(l - String(n).length) + n;
+    
     // UTIL: parse float: '-123.456e-3' => {s: -1, m: 123456, e: -6}
     const f2sme = fStr => {
         const parse = fStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
@@ -29,6 +32,17 @@ const {
             s: m == '0' ? 0 : (parse[1] + 1)|0,
             e: m == '0' ? 0 : (parse[3]|0) - frac.length + zs.length,
         };
+    }
+    
+    const sme2f = (fObj, targetE = 0) => {
+        if (! fObj.s) return '0';
+        const sign = (~fObj.s) ? '' : '-';
+        const e = fObj.e - targetE;
+        if (! e) return sign + fObj.m;
+        if (e > 0) return sign + fObj.m + '0'.repeat(e);
+        const frac = lp0(fObj.m.slice(e), -e);
+        const int = fObj.m.slice(0, e) || '0';
+        return `${sign}${int}.${frac}` + (targetE ? `e${targetE}` : '');
     }
     
     // UTIL: Negate the number in its object representation
@@ -43,9 +57,6 @@ const {
             return cmpl % SUM_MOD;
         });
     }
-    
-    // UTIL: left pad with 0
-    const lp0 = n => '0'.repeat(SUM_B_10E - String(n).length) + n;
     
     // UTIL: split string into groups of digits, from the LEFT
     const chunk = (str, n = 1) => {
@@ -98,25 +109,24 @@ const {
             resultDL = b10ECmpl(resultDL);
             sign = '-';
         }
-        return f2sme(sign + resultDL.reverse().join('') + 'e' + resultExp);
+        return f2sme(sign +
+            resultDL.reverse().map(d => lp0(d)).join('')
+        + 'e' + resultExp);
     }
-/*    
-    return {
-        add: (a, b) => {
-            
-            return result;
-        },
-        subtract: (a, b) => {
-            
-            return result;
-        },
+    
+    const ops = {
+        add: (a, b) => sme2f(sum(f2sme(a), f2sme(b))),
+        subtract: (a, b) => sme2f(sum(f2sme(a), neg(f2sme(b)))),
         multiply: (a, b) => {
             
-            return result;
+            return 'MUL';
         },
         divide: (a, b, fds = 0) => {
             
-            return result;
+            return 'DIV';
         },
     }
+    
+/*    
+    return ops;
 })();*/
