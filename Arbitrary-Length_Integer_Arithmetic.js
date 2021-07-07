@@ -19,7 +19,7 @@ const {
     const MUL_BASE_10E = 8;
     
     // UTIL: parse float: '-123.456e-3' => {s: -1, m: 123456, e: -6}
-    const f2sie = fStr => {
+    const f2sme = fStr => {
         const parse = fStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
         if (! parse) return null;
         const [, int, frac] = parse[2].match(/^(\d*)\.?(\d*)$/);
@@ -44,6 +44,9 @@ const {
         });
     }
     
+    // UTIL: left pad with 0
+    const lp0 = n => '0'.repeat(SUM_B_10E - String(n).length) + n;
+    
     // UTIL: split string into groups of digits, from the LEFT
     const chunk = (str, n = 1) => {
         const dl = [];
@@ -65,22 +68,37 @@ const {
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
         // split strings into SUM_B_10E-length chunks, FROM LEFT
         const digLists = strs.map(str => chunk(str, SUM_B_10E));
-        // max addition columns
+        // max addition columns {
         const maxDigits = digLists.map(
             e => e.length
         ).reduce(
             (acc, e) => Math.max(acc, e), 0
-        ) + Math.round(Math.log10(digLists.length) + 0.5) + 2;
-        // +2 - reserve place for complement carry ^^
+        ) + Math.round(Math.log10(digLists.length) / SUM_B_10E + 0.5) + 1;
+        // +1 - reserve place for complement carry ^^^
+        // } max addition columns
         // right 0-pad to equalize lengths
         digLists.forEach(dl => {
             dl.push(...Array(maxDigits - dl.length).fill(0));
         });
-        
-            console.log('before 10compl', digLists);
+        let resultDL = digLists.reduce((sum, dl, dli) => {
+            if (fos[dli].s < 0) dl = b10ECmpl(dl);
+            let carry = 0;
+            dl.forEach((d, i) => {
+                const ds = d + sum[i] + carry;
+                sum[i] = ds % SUM_MOD;
+                carry = (ds / SUM_MOD)|0;
+            });
             
-        const digListCmpl = digLists.map((dl, i) => (~fos[i].s) ? dl : b10ECmpl(dl));
-            console.log('after 10compl', digListCmpl);
+            return sum;
+        }, Array(maxDigits).fill(0));
+        const carry = resultDL[resultDL.length - 1];
+        
+        let sign = '';
+        if (carry >= SUM_B_10E / 2) {
+            resultDL = b10ECmpl(resultDL);
+            sign = '-';
+        }
+        return f2sme(sign + resultDL.reverse().join('') + 'e' + resultExp);
     }
 /*    
     return {
