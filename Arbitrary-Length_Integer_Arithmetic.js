@@ -16,7 +16,7 @@ const {
     const SUM_MOD = 10**SUM_B_10E;
     const N_NINES = SUM_MOD - 1; // for the complements
     
-    const MUL_BASE_10E = 8;
+    const MUL_BASE_10E = 6;
     
     // UTIL: left pad with 0
     const lp0 = (n, l = SUM_B_10E) => '0'.repeat(l - String(n).length) + n;
