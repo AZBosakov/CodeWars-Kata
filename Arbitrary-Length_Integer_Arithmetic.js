@@ -4,22 +4,19 @@
  * The kata requires only positive ints,
  * but I'm coding floats support as an excersize
  */
-/*
+
 const {
     add, subtract, multiply, divide
-} = (() => {*/
+} = (() => {
     /**
-     * Use base 10^SUM_B_10E for add/sub, instead of individual digits
-     * Choose SUM_B_10E so sum/diff of SUM_B_10E-digits < Number.MAX_SAFE_INTEGER
+     * Use base 10^BASE10E instead of individual digits
      */
-    const SUM_B_10E = 12;
-    const SUM_MOD = 10**SUM_B_10E;
-    const N_NINES = SUM_MOD - 1; // for the complements
-    
-    const MUL_BASE_10E = 6;
+    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE = 10**BASE10E;
+    const N_NINES = BASE - 1; // for the complements
     
     // UTIL: left pad with 0
-    const lp0 = (n, l = SUM_B_10E) => '0'.repeat(l - String(n).length) + n;
+    const lp0 = (n, l = BASE10E) => '0'.repeat(l - String(n).length) + n;
     
     // UTIL: parse float: '-123.456e-3' => {s: -1, m: 123456, e: -6}
     const f2sme = fStr => {
@@ -48,13 +45,13 @@ const {
     // UTIL: Negate the number in its object representation
     const neg = fo => ({...fo, s: fo.s * -1});
     
-    // UTIL: 10**SUM_B_10E complement
+    // UTIL: 10**BASE10E complement
     const b10ECmpl = digList => {
         let carry = 1;
         return digList.map(e => {
             const cmpl = N_NINES - e + carry;
-            carry = Math.floor(cmpl / SUM_MOD);
-            return cmpl % SUM_MOD;
+            carry = Math.floor(cmpl / BASE);
+            return cmpl % BASE;
         });
     }
     
@@ -77,14 +74,14 @@ const {
         const resultExp = Math.min(...fos.map(fo => fo.e));
         // right pad with 0s, to equalize the exponents
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
-        // split strings into SUM_B_10E-length chunks, FROM LEFT
-        const digLists = strs.map(str => chunk(str, SUM_B_10E));
+        // split strings into BASE10E-length chunks, FROM LEFT
+        const digLists = strs.map(str => chunk(str, BASE10E));
         // max addition columns {
         const maxDigits = digLists.map(
             e => e.length
         ).reduce(
             (acc, e) => Math.max(acc, e), 0
-        ) + Math.round(Math.log10(digLists.length) / SUM_B_10E + 0.5) + 1;
+        ) + Math.round(Math.log10(digLists.length) / BASE10E + 0.5) + 1;
         // +1 - reserve place for complement carry ^^^
         // } max addition columns
         // right 0-pad to equalize lengths
@@ -96,8 +93,8 @@ const {
             let carry = 0;
             dl.forEach((d, i) => {
                 const ds = d + sum[i] + carry;
-                sum[i] = ds % SUM_MOD;
-                carry = (ds / SUM_MOD)|0;
+                sum[i] = ds % BASE;
+                carry = (ds / BASE)|0;
             });
             
             return sum;
@@ -105,7 +102,7 @@ const {
         const carry = resultDL[resultDL.length - 1];
         
         let sign = '';
-        if (carry >= SUM_B_10E / 2) {
+        if (carry >= BASE10E / 2) {
             resultDL = b10ECmpl(resultDL);
             sign = '-';
         }
@@ -114,9 +111,13 @@ const {
         + 'e' + resultExp);
     }
     
-    const ops = {
-        add: (a, b) => sme2f(sum(f2sme(a), f2sme(b))),
-        subtract: (a, b) => sme2f(sum(f2sme(a), neg(f2sme(b)))),
+    return {
+        add: (a, b) => sme2f(
+            sum(f2sme(String(a)), f2sme(String(b)))
+        ),
+        subtract: (a, b) => sme2f(
+            sum(f2sme(String(a)), neg(f2sme(String(b))))
+        ),
         multiply: (a, b) => {
             
             return 'MUL';
@@ -126,7 +127,4 @@ const {
             return 'DIV';
         },
     }
-    
-/*    
-    return ops;
-})();*/
+})();
