@@ -27,7 +27,7 @@
         return {
             m,
             s: m == '0' ? 0 : (parse[1] + 1)|0,
-            e: m == '0' ? 1 : (parse[3]|0) - frac.length + zs.length,
+            e: m == '0' ? 0 : (parse[3]|0) - frac.length + zs.length,
         };
     }
     
