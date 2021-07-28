@@ -81,7 +81,7 @@
             e => e.length
         ).reduce(
             (acc, e) => Math.max(acc, e), 0
-        ) + Math.round(Math.log10(digLists.length) / BASE10E + 0.5) + 1;
+        ) + Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
         // +1 - reserve place for complement carry ^^^
         // } max addition columns
         // right 0-pad to equalize lengths
