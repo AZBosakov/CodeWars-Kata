@@ -5,9 +5,9 @@
  * but I'm coding floats support as an excersize
  */
 
-const {
-    add, subtract, multiply, divide
-} = (() => {
+// const {
+//     add, subtract, multiply, divide
+// } = (() => {
     /**
      * Use base 10^BASE10E instead of individual digits
      */
@@ -111,7 +111,7 @@ const {
         + 'e' + resultExp);
     }
     
-    return {
+    const OPS = {
         add: (a, b) => sme2f(
             sum(f2sme(String(a)), f2sme(String(b)))
         ),
@@ -127,4 +127,6 @@ const {
             return 'DIV';
         },
     }
-})();
+  /*  
+    return OPS;
+})();*/
