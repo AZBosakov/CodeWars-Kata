@@ -113,14 +113,10 @@
         // split strings into BASE10E-length chunks, FROM LEFT
         const digLists = strs.map(str => chunk(str, BASE10E));
         // max addition columns {
-        const maxDigits = digLists.map(
-            e => e.length
-        ).reduce(
-            (acc, e) => Math.max(acc, e), 0
-        ) + Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
+        const maxDigits = Math.max(...digLists.map(e => e.length)) +
+            Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
         // +1 - reserve place for complement carry >>>^^^
         // } max addition columns
-        // right 0-pad to equalize lengths
         digLists.forEach(dl => {
             dl.push(...Array(maxDigits - dl.length).fill(0));
         });
