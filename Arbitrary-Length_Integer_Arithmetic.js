@@ -9,11 +9,15 @@
 //     add, subtract, multiply, divide
 // } = (() => {
     /**
-     * Use base 10^BASE10E instead of individual digits
+     * Use base 10^BASE10E instead of individual digits.
+     * 
+     * Operations act uppon arrays of digits in BASE.
+     * Tthe highes array index is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
-    const N_NINES = BASE - 1; // Using BASE complement addition for subtraction
+    const N_NINES = BASE - 1;
+    const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
     
     // UTIL: left pad with 0
     const lp0 = (n, l = BASE10E) => '0'.repeat(l - String(n).length) + n;
@@ -54,6 +58,26 @@
             carry = Math.floor(cmpl / BASE);
             return cmpl % BASE;
         });
+    }
+    
+    const signExtend = (dl, i) => {
+        if (i < dl.length) return dl[i];
+        return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
+    }
+    
+    const adder = (a, b) => {
+        let carry = 0;
+        const maxDigits = Math.max(a.length, b.length);
+        const result = [];
+        for (let i = 0; i < maxDigits; i++) {
+            const ai = signExtend(a, i);
+            let bi = signExtend(b, i);
+            const si = ai + bi;
+            carry = Math.floor(si / BASE);
+            result.push(si % BASE);
+        }
+        result.push(carry);
+        return result;
     }
     
     // UTIL: split string into groups of digits, from the LEFT
