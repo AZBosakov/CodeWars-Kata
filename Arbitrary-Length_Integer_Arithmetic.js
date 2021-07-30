@@ -126,9 +126,12 @@
             dl.forEach((d, i) => {
                 const ds = d + sum[i] + carry;
                 sum[i] = ds % BASE;
-                carry = (ds / BASE)|0;
+                carry = Math.floor(ds / BASE);
             });
             
+//             for (let i = 0; i < maxDigits; i++) {
+//                 
+//             }
             return sum;
         }, Array(maxDigits).fill(0));
         const carry = resultDL[resultDL.length - 1];
