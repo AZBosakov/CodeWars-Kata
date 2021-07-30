@@ -13,7 +13,7 @@
      */
     const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
-    const N_NINES = BASE - 1; // for the complements
+    const N_NINES = BASE - 1; // Using BASE complement addition for subtraction
     
     // UTIL: left pad with 0
     const lp0 = (n, l = BASE10E) => '0'.repeat(l - String(n).length) + n;
@@ -30,13 +30,14 @@
             e: m == '0' ? 0 : (parse[3]|0) - frac.length + zs.length,
         };
     }
-    
+    // UTIL: opposite of f2sme()
     const sme2f = (fObj, targetE = 0) => {
         if (! fObj.s) return '0';
-        const sign = (~fObj.s) ? '' : '-';
+        const sign = (fObj.s < 0) ? '-' : '';
         const e = fObj.e - targetE;
-        if (! e) return sign + fObj.m;
-        if (e > 0) return sign + fObj.m + '0'.repeat(e);
+        if (e >= 0) {
+            return sign + fObj.m + '0'.repeat(e);
+        }
         const frac = lp0(fObj.m.slice(e), -e);
         const int = fObj.m.slice(0, e) || '0';
         return `${sign}${int}.${frac}` + (targetE ? `e${targetE}` : '');
@@ -82,7 +83,7 @@
         ).reduce(
             (acc, e) => Math.max(acc, e), 0
         ) + Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
-        // +1 - reserve place for complement carry ^^^
+        // +1 - reserve place for complement carry >>>^^^
         // } max addition columns
         // right 0-pad to equalize lengths
         digLists.forEach(dl => {
