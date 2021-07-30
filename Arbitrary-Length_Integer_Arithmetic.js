@@ -68,6 +68,7 @@
     }
     
     // Generate adders for add/sub
+    // TODO: buggy!!!
     const getAdder = (op = ADDER_ADD) => {
         return (a, b) => {
             let carry = op == ADDER_ADD ? 0 : 1;
@@ -118,20 +119,22 @@
         // +1 - reserve place for complement carry >>>^^^
         // } max addition columns
         digLists.forEach(dl => {
-            dl.push(...Array(maxDigits - dl.length).fill(0));
+            dl.push(0);
         });
         let resultDL = digLists.reduce((sum, dl, dli) => {
             if (fos[dli].s < 0) dl = b10ECmpl(dl);
             let carry = 0;
-            dl.forEach((d, i) => {
-                const ds = d + sum[i] + carry;
+//             dl.forEach((d, i) => {
+//                 const ds = d + sum[i] + carry;
+//                 sum[i] = ds % BASE;
+//                 carry = Math.floor(ds / BASE);
+//             });
+            
+            for (let i = 0; i < maxDigits; i++) {
+                const ds = signExtend(dl,i) + sum[i] + carry;
                 sum[i] = ds % BASE;
                 carry = Math.floor(ds / BASE);
-            });
-            
-//             for (let i = 0; i < maxDigits; i++) {
-//                 
-//             }
+            }
             return sum;
         }, Array(maxDigits).fill(0));
         const carry = resultDL[resultDL.length - 1];
