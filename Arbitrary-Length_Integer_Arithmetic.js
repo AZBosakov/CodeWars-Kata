@@ -18,6 +18,8 @@
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
+    const ADDER_ADD = 0;
+    const ADDER_SUB = ~ADDER_ADD;
     
     // UTIL: left pad with 0
     const lp0 = (n, l = BASE10E) => '0'.repeat(l - String(n).length) + n;
@@ -65,19 +67,28 @@
         return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
     }
     
-    const adder = (a, b) => {
-        let carry = 0;
-        const maxDigits = Math.max(a.length, b.length);
-        const result = [];
-        for (let i = 0; i < maxDigits; i++) {
-            const ai = signExtend(a, i);
-            let bi = signExtend(b, i);
-            const si = ai + bi;
-            carry = Math.floor(si / BASE);
-            result.push(si % BASE);
+    // Generate adders for add/sub
+    const getAdder = (op = ADDER_ADD) => {
+        return (a, b) => {
+            let carry = op == ADDER_ADD ? 0 : 1;
+            const maxDigits = Math.max(a.length, b.length);
+            const result = [];
+            for (let i = 0; i < maxDigits; i++) {
+                const ai = signExtend(a, i);
+                let bi = signExtend(b, i);
+                if (op != ADDER_ADD) bi = N_NINES - bi + carry;
+                const si = ai + bi;
+                carry = Math.floor(si / BASE);
+                result.push(si % BASE);
+            }
+            result.push(carry);
+            return result;
         }
-        result.push(carry);
-        return result;
+    }
+    
+    const digitList = {
+        add: getAdder(ADDER_ADD),
+        sub: getAdder(ADDER_SUB),
     }
     
     // UTIL: split string into groups of digits, from the LEFT
