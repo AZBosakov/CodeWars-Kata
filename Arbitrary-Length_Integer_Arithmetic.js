@@ -12,7 +12,7 @@
      * Use base 10^BASE10E instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
-     * Tthe highes array index is used for sign extension in BASE-complement add/subtract.
+     * The highes array index is used for sign extension in BASE-complement add/subtract.
      */
     const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
