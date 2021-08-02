@@ -14,7 +14,7 @@
      * Operations act uppon arrays of digits in BASE.
      * The highes array index is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
@@ -67,29 +67,16 @@
         return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
     }
     
-    // Generate adders for add/sub
-    // TODO: buggy!!!
-    const getAdder = (op = ADDER_ADD) => {
-        return (a, b) => {
-            let carry = op == ADDER_ADD ? 0 : 1;
-            const maxDigits = Math.max(a.length, b.length);
-            const result = [];
-            for (let i = 0; i < maxDigits; i++) {
-                const ai = signExtend(a, i);
-                let bi = signExtend(b, i);
-                if (op != ADDER_ADD) bi = N_NINES - bi;
-                const si = ai + bi + carry;
-                carry = Math.floor(si / BASE);
-                result.push(si % BASE);
-            }
-            result.push(carry);
-            return result;
+    const adder = (a, b) => {
+        let carry = 0;
+        const maxDigits = Math.max(a.length, b.length) + 1;
+        const result = [];
+        for (let i = 0; i < maxDigits; i++) {
+            const si = signExtend(a, i) + signExtend(b, i) + carry;
+            carry = Math.floor(si / BASE);
+            result.push(si % BASE);
         }
-    }
-    
-    const digitList = {
-        add: getAdder(ADDER_ADD),
-        sub: getAdder(ADDER_SUB),
+        return result;
     }
     
     // UTIL: split string into groups of digits, from the LEFT
@@ -115,28 +102,11 @@
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
         // split strings into BASE10E-length chunks, FROM LEFT
         const digLists = strs.map(str => split10E(str));
-        // max addition columns {
-        const maxDigits = Math.max(...digLists.map(e => e.length)) +
-            Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
-        // +1 - reserve place for complement carry >>>^^^
-        // } max addition columns
-        digLists.forEach(dl => dl.push(0)); // Spare digit for the sign extension
+        digLists.forEach(dl => dl.push(0)); // digit for the sign extension
         let resultDL = digLists.reduce((sum, dl, dli) => {
             if (fos[dli].s < 0) dl = b10ECmpl(dl);
-            let carry = 0;
-//             dl.forEach((d, i) => {
-//                 const ds = d + sum[i] + carry;
-//                 sum[i] = ds % BASE;
-//                 carry = Math.floor(ds / BASE);
-//             });
-            
-            for (let i = 0; i < maxDigits; i++) {
-                const ds = signExtend(dl,i) + sum[i] + carry;
-                sum[i] = ds % BASE;
-                carry = Math.floor(ds / BASE);
-            }
-            return sum;
-        }, Array(maxDigits).fill(0));
+            return adder(sum, dl);
+        }, [0]);
         const carry = resultDL[resultDL.length - 1];
         
         let sign = '';
@@ -144,7 +114,6 @@
             resultDL = b10ECmpl(resultDL);
             sign = '-';
         }
-        console.log(resultDL);
         return f2sme(sign + join10E(resultDL) + 'e' + resultExp);
     }
     
