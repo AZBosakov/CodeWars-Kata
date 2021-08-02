@@ -77,8 +77,8 @@
             for (let i = 0; i < maxDigits; i++) {
                 const ai = signExtend(a, i);
                 let bi = signExtend(b, i);
-                if (op != ADDER_ADD) bi = N_NINES - bi + carry;
-                const si = ai + bi;
+                if (op != ADDER_ADD) bi = N_NINES - bi;
+                const si = ai + bi + carry;
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
@@ -93,7 +93,7 @@
     }
     
     // UTIL: split string into groups of digits, from the LEFT
-    const chunk = (str, n = 1) => {
+    const chunk = (str, n = BASE10E) => {
         const dl = [];
         let e = 0;
         let chunk = '';
@@ -112,7 +112,7 @@
         // right pad with 0s, to equalize the exponents
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
         // split strings into BASE10E-length chunks, FROM LEFT
-        const digLists = strs.map(str => chunk(str, BASE10E));
+        const digLists = strs.map(str => chunk(str));
         // max addition columns {
         const maxDigits = Math.max(...digLists.map(e => e.length)) +
             Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
