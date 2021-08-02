@@ -22,7 +22,7 @@
     const ADDER_SUB = ~ADDER_ADD;
     
     // UTIL: left pad with 0
-    const lp0 = (n, l = BASE10E) => '0'.repeat(l - String(n).length) + n;
+    const lp0 = n => '0'.repeat(BASE10E - String(n).length) + n;
     
     // UTIL: parse float: '-123.456e-3' => {s: -1, m: 123456, e: -6}
     const f2sme = fStr => {
@@ -93,7 +93,7 @@
     }
     
     // UTIL: split string into groups of digits, from the LEFT
-    const chunk = (str, n = BASE10E) => {
+    const split10E = (str, n = BASE10E) => {
         const dl = [];
         let e = 0;
         let chunk = '';
@@ -106,21 +106,21 @@
         return dl;
     }
     
+    const join10E = dl => dl.map(lp0).reverse().join('');
+    
     const sum = (...fos) => {
         // find min common exponent
         const resultExp = Math.min(...fos.map(fo => fo.e));
         // right pad with 0s, to equalize the exponents
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
         // split strings into BASE10E-length chunks, FROM LEFT
-        const digLists = strs.map(str => chunk(str));
+        const digLists = strs.map(str => split10E(str));
         // max addition columns {
         const maxDigits = Math.max(...digLists.map(e => e.length)) +
             Math.ceil(Math.log10(digLists.length) / BASE10E) + 1;
         // +1 - reserve place for complement carry >>>^^^
         // } max addition columns
-        digLists.forEach(dl => {
-            dl.push(0);
-        });
+        digLists.forEach(dl => dl.push(0)); // Spare digit for the sign extension
         let resultDL = digLists.reduce((sum, dl, dli) => {
             if (fos[dli].s < 0) dl = b10ECmpl(dl);
             let carry = 0;
@@ -144,9 +144,8 @@
             resultDL = b10ECmpl(resultDL);
             sign = '-';
         }
-        return f2sme(sign +
-            resultDL.reverse().map(d => lp0(d)).join('')
-        + 'e' + resultExp);
+        console.log(resultDL);
+        return f2sme(sign + join10E(resultDL) + 'e' + resultExp);
     }
     
     const OPS = {
