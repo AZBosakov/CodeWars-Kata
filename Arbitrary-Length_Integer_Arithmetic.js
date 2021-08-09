@@ -50,34 +50,32 @@
     // UTIL: Negate the number in its object representation
     const neg = fo => ({...fo, s: fo.s * -1});
     
-    // UTIL: 10**BASE10E complement
-    const b10ECmpl = digList => {
-        let carry = 1;
-        return digList.map(e => {
-            const cmpl = N_NINES - e + carry;
-            carry = Math.floor(cmpl / BASE);
-            return cmpl % BASE;
-        });
+    // Most Signifficant Digit
+    const msd = dl => dl[dl.length - 1];
+    
+    // UTIL: split string into digits in BASE10E, from the LEFT
+    const split10E = (str, n = BASE10E) => {
+        const dl = [];
+        let e = 0;
+        let chunk = '';
+        while (
+            chunk = str.slice(e - n, e || undefined)
+        ) {
+            dl.push(parseFloat('0' + chunk));
+            e -= n;
+        }
+        if (msd(dl)) dl.push(0); // Digit for the sign extension
+        return dl;
     }
+    
+    const join10E = dl => dl.map(lp0).reverse().join('');
     
     const signExtend = (dl, i) => {
         if (i < dl.length) return dl[i];
         return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
     }
     
-    const adder = (a, b) => {
-        let carry = 0;
-        const maxDigits = Math.max(a.length, b.length) + 1;
-        const result = [];
-        for (let i = 0; i < maxDigits; i++) {
-            const si = signExtend(a, i) + signExtend(b, i) + carry;
-            carry = Math.floor(si / BASE);
-            result.push(si % BASE);
-        }
-        return result;
-    }
-    
-    const digList = ['add', 'sub'].reduce((obj, op, opIdx) => {
+    const adder = ['add', 'sub'].reduce((obj, op, opIdx) => {
         obj[op] = (a, b) => {
             const CMPL = opIdx;
             let carry = opIdx;
@@ -91,26 +89,13 @@
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
+            
+            console.log(op, result);
+            
             return result;
         }
         return obj;
     }, {});
-    
-    // UTIL: split string into groups of digits, from the LEFT
-    const split10E = (str, n = BASE10E) => {
-        const dl = [];
-        let e = 0;
-        let chunk = '';
-        while (
-            chunk = str.slice(e - n, e || undefined)
-        ) {
-            dl.push(parseFloat('0' + chunk));
-            e -= n;
-        }
-        return dl;
-    }
-    
-    const join10E = dl => dl.map(lp0).reverse().join('');
     
     const sum = (...fos) => {
         // find min common exponent
@@ -118,20 +103,17 @@
         // right pad with 0s, to equalize the exponents
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
         // split strings into BASE10E-length chunks, FROM LEFT
-        const digLists = strs.map(str => split10E(str));
-        digLists.forEach(dl => dl.push(0)); // digit for the sign extension
-        let resultDL = digLists.reduce((sum, dl, dli) => {
-            if (fos[dli].s < 0) dl = b10ECmpl(dl);
-            return adder(sum, dl);
-        }, [0]);
-        const carry = resultDL[resultDL.length - 1];
-        
+        const dls = strs.map(str => split10E(str));
+        let resDL = dls.reduce(
+            (sum, dl, dli) => (fos[dli].s > 0) ? adder.add(sum, dl) : adder.sub(sum, dl),
+            [0]
+        );
         let sign = '';
-        if (carry >= BASE10E / 2) {
-            resultDL = b10ECmpl(resultDL);
+        if (msd(resDL) > MAX_POS_CARRY) {
+            resDL = adder.sub([0], resDL);
             sign = '-';
         }
-        return f2sme(sign + join10E(resultDL) + 'e' + resultExp);
+        return f2sme(sign + join10E(resDL) + 'e' + resultExp);
     }
     
     const OPS = {
