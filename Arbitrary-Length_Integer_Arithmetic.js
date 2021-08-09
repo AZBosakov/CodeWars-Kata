@@ -18,8 +18,6 @@
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
-    const ADDER_ADD = 0;
-    const ADDER_SUB = ~ADDER_ADD;
     
     // UTIL: left pad with 0
     const lp0 = n => '0'.repeat(BASE10E - String(n).length) + n;
@@ -78,6 +76,25 @@
         }
         return result;
     }
+    
+    const digList = ['add', 'sub'].reduce((obj, op, opIdx) => {
+        obj[op] = (a, b) => {
+            const CMPL = opIdx;
+            let carry = opIdx;
+            const maxDigits = Math.max(a.length, b.length) + 1;
+            const result = [];
+            for (let i = 0; i < maxDigits; i++) {
+                const ai = signExtend(a, i);
+                let bi = signExtend(b, i);
+                if (CMPL) bi = N_NINES - bi;
+                const si = ai + bi + carry;
+                carry = Math.floor(si / BASE);
+                result.push(si % BASE);
+            }
+            return result;
+        }
+        return obj;
+    }, {});
     
     // UTIL: split string into groups of digits, from the LEFT
     const split10E = (str, n = BASE10E) => {
