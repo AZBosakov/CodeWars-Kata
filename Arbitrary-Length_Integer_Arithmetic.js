@@ -102,9 +102,7 @@
         const resultExp = Math.min(...fos.map(fo => fo.e));
         // right pad with 0s, to equalize the exponents
         const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
-        // split strings into BASE10E-length chunks, FROM LEFT
-        const dls = strs.map(str => split10E(str));
-        let resDL = dls.reduce(
+        let resDL = strs.map(str => split10E(str)).reduce(
             (sum, dl, dli) => (fos[dli].s > 0) ? adder.add(sum, dl) : adder.sub(sum, dl),
             [0]
         );
