@@ -12,7 +12,7 @@
      * Use base 10^BASE10E instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
-     * The highes array index is used for sign extension in BASE-complement add/subtract.
+     * The highest array index is used for sign extension in BASE-complement add/subtract.
      */
     const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
@@ -50,7 +50,7 @@
     // UTIL: Negate the number in its object representation
     const neg = fo => ({...fo, s: fo.s * -1});
     
-    // Most Signifficant Digit
+    // Most Signifficant Digit. expected to be the sign extension digit: 0 or N_NINES
     const msd = dl => dl[dl.length - 1];
     
     // UTIL: split string into digits in BASE10E, from the LEFT
@@ -75,6 +75,24 @@
         return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
     }
     
+    /**
+     * Collapse multiple sign digits into one.
+     * Does not create new array - modifies the passed one
+     */
+    const trim = dl => {
+        const sd = msd(dl); // expected to be the sign extension digit,
+        if (sd % N_NINES) return dl; // but check for this just in case
+        let i = dl.length;
+        while (--i && dl[i-1] == sd);
+        dl.length = i + 1;
+        return dl;
+    }
+    
+    /**
+     * create two separate adders, to avoid creating additional
+     * BASE complement array for subtraction
+     * 'add' does direct carry addition, 'sub' first does a BASE complement.
+     */
     const adder = ['add', 'sub'].reduce((obj, op, opIdx) => {
         obj[op] = (a, b) => {
             const CMPL = opIdx;
@@ -89,13 +107,15 @@
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
-            
-            console.log(op, result);
-            
-            return result;
+            return trim(result);
         }
         return obj;
     }, {});
+    
+    const dlTest = {
+        is0: dl => !~dl.findIndex(d => d),
+        
+    }
     
     const sum = (...fos) => {
         // find min common exponent
