@@ -114,7 +114,14 @@
     
     const dlTest = {
         is0: dl => !~dl.findIndex(d => d),
-        
+        is1: dl => {
+            if (dl[0] != 1) return false;
+            let i = dl.length;
+            while (--i) {
+                if (dl[i]) return false;
+            }
+            return true;
+        },
     }
     
     const sum = (...fos) => {
