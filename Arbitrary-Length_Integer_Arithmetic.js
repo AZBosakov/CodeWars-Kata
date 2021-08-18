@@ -14,7 +14,7 @@
      * Operations act uppon arrays of digits in BASE.
      * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
@@ -96,16 +96,15 @@
             let carry = opIdx; // 0 || 1
             const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + SED
             const result = [];
-            let si = 0;
             for (let i = 0; i < maxDigits; i++) {
                 const ai = signExtend(a, i);
                 let bi = signExtend(b, i);
                 if (CMPL) bi = N_NINES - bi;
-                si = ai + bi + carry;
+                const si = ai + bi + carry;
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
-            result[SED] = si;
+            result[SED] = result[result.length - 1];
             return trim(result);
         }
         return obj;
@@ -121,6 +120,9 @@
             }
             return true;
         },
+        powerOfBase: dl => {
+            
+        }
     }
     
     const sum = (...fos) => {
