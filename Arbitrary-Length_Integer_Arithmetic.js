@@ -50,7 +50,7 @@
     }
     
     // UTIL: Negate the number in its object representation
-    const neg = fo => ({...fo, s: fo.s * -1});
+    const negFO = fo => ({...fo, s: fo.s * -1});
     
     // UTIL: split string into digits in BASE10E, from the LEFT
     const split10E = str => {
@@ -92,9 +92,9 @@
      */
     const adder = ['add', 'sub'].reduce((obj, op, opIdx) => {
         obj[op] = (a, b) => {
-            const CMPL = opIdx;
-            let carry = opIdx;
-            const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + sed
+            const CMPL = opIdx; // BASE complement needed?
+            let carry = opIdx; // 0 || 1
+            const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + SED
             const result = [];
             let si = 0;
             for (let i = 0; i < maxDigits; i++) {
@@ -145,7 +145,7 @@
             sum(f2sme(String(a)), f2sme(String(b)))
         ),
         subtract: (a, b) => sme2f(
-            sum(f2sme(String(a)), neg(f2sme(String(b))))
+            sum(f2sme(String(a)), negFO(f2sme(String(b))))
         ),
         multiply: (a, b) => {
             
