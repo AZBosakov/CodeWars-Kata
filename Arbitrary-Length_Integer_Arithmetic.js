@@ -12,12 +12,14 @@
      * Use base 10^BASE10E instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
-     * The highest array index is used for sign extension in BASE-complement add/subtract.
+     * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     const MAX_POS_CARRY = BASE / 2 - 1; // 4999...
+    
+    const SED = Symbol.for('sign_extension_digit');
     
     // UTIL: left pad with 0
     const lp0 = n => '0'.repeat(BASE10E - String(n).length) + n;
@@ -50,9 +52,6 @@
     // UTIL: Negate the number in its object representation
     const neg = fo => ({...fo, s: fo.s * -1});
     
-    // Most Signifficant Digit. expected to be the sign extension digit: 0 or N_NINES
-    const msd = dl => dl[dl.length - 1];
-    
     // UTIL: split string into digits in BASE10E, from the LEFT
     const split10E = str => {
         const dl = [];
@@ -64,27 +63,23 @@
             dl.push(parseFloat('0' + chunk));
             e -= BASE10E;
         }
-        if (msd(dl)) dl.push(0); // Digit for the sign extension
+        dl[SED] = 0;
         return dl;
     }
     
     const join10E = dl => dl.map(lp0).reverse().join('');
     
-    const signExtend = (dl, i) => {
-        if (i < dl.length) return dl[i];
-        return sign = (dl[dl.length - 1] > MAX_POS_CARRY) ? N_NINES : 0;
-    }
+    const signExtend = (dl, i) => (i < dl.length) ? dl[i] : (dl[SED] || 0);
     
     /**
-     * Collapse multiple sign digits into one.
+     * Remove the most signifficant sign digits, equal to [SED]
      * Does not create new array - modifies the passed one
      */
     const trim = dl => {
-        const sd = msd(dl); // expected to be the sign extension digit,
-        if (sd % N_NINES) return dl; // but check for this just in case
+        dl[SED] = dl[SED] || 0;
         let i = dl.length;
-        while (--i && dl[i-1] == sd);
-        dl.length = i + 1;
+        while (--i && dl[i] == dl[SED]) ;
+        dl.length = i+1;
         return dl;
     }
     
@@ -92,21 +87,25 @@
      * create two separate adders, to avoid creating additional
      * BASE complement array for subtraction
      * 'add' does direct carry addition, 'sub' first does a BASE complement.
+     * 
+     * The sign extension digit is stored in [SED] prop of the array.
      */
     const adder = ['add', 'sub'].reduce((obj, op, opIdx) => {
         obj[op] = (a, b) => {
             const CMPL = opIdx;
             let carry = opIdx;
-            const maxDigits = Math.max(a.length, b.length) + 1;
+            const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + sed
             const result = [];
+            let si = 0;
             for (let i = 0; i < maxDigits; i++) {
                 const ai = signExtend(a, i);
                 let bi = signExtend(b, i);
                 if (CMPL) bi = N_NINES - bi;
-                const si = ai + bi + carry;
+                si = ai + bi + carry;
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
+            result[SED] = si;
             return trim(result);
         }
         return obj;
@@ -134,7 +133,7 @@
             [0]
         );
         let sign = '';
-        if (msd(resDL) > MAX_POS_CARRY) {
+        if (resDL[SED]) {
             resDL = adder.sub([0], resDL);
             sign = '-';
         }
