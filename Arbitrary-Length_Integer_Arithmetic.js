@@ -112,8 +112,26 @@
     
     const digitList = {
         is0: dl => !(dl[SED] || ~dl.findIndex(d => d)),
+        /**
+         * return the power of BASE for digit lists 1,0,0...
+         * or -1 if not a power of BASE
+         */
         powerOfBase: dl => {
-            
+            if (dl[SED]) return false;
+            let enc = false;
+            let power = -1;
+            dl.some((d, i) => {
+                if (!d) return false;
+                if (enc || d > 1) {
+                    power = -1;
+                    return true;
+                }
+                enc = true;
+                power = i;
+                return false;
+                
+            });
+            return power;
         }
     }
     
