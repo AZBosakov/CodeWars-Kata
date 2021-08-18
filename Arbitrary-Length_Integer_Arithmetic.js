@@ -54,15 +54,15 @@
     const msd = dl => dl[dl.length - 1];
     
     // UTIL: split string into digits in BASE10E, from the LEFT
-    const split10E = (str, n = BASE10E) => {
+    const split10E = str => {
         const dl = [];
         let e = 0;
         let chunk = '';
         while (
-            chunk = str.slice(e - n, e || undefined)
+            chunk = str.slice(e - BASE10E, e || undefined)
         ) {
             dl.push(parseFloat('0' + chunk));
-            e -= n;
+            e -= BASE10E;
         }
         if (msd(dl)) dl.push(0); // Digit for the sign extension
         return dl;
@@ -112,7 +112,7 @@
         return obj;
     }, {});
     
-    const dlTest = {
+    const digitList = {
         is0: dl => !~dl.findIndex(d => d),
         is1: dl => {
             if (dl[0] != 1) return false;
