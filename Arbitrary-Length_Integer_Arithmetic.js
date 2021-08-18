@@ -37,6 +37,7 @@
         };
     }
     // UTIL: opposite of f2sme()
+    // TODO BUGGY for fracs
     const sme2f = (fObj, targetE = 0) => {
         if (! fObj.s) return '0';
         const sign = (fObj.s < 0) ? '-' : '';
@@ -44,7 +45,7 @@
         if (e >= 0) {
             return sign + fObj.m + '0'.repeat(e);
         }
-        const frac = lp0(fObj.m.slice(e), -e);
+        const frac = '0'.repeat(-e) + fObj.m.slice(e);
         const int = fObj.m.slice(0, e) || '0';
         return `${sign}${int}.${frac}` + (targetE ? `e${targetE}` : '');
     }
@@ -132,7 +133,10 @@
                 
             });
             return power;
-        }
+        },
+        leftShift: (dl, n) => {
+            
+        },
     }
     
     const sum = (...fos) => {
