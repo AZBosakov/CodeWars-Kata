@@ -120,7 +120,9 @@
         },
         leftShift: (dl, n) => { //TODO
             if (n < 0) throw new RangeException(`Invalid left shift: ${n}`);
-            // TODO
+            const ndl = [...Array(n).fill(0), ...dl];
+            ndl[SED] = dl[SED] || 0;
+            return ndl;
         },
         signExtend: (dl, i) => (i < dl.length) ? dl[i] : (dl[SED] || 0),
         /**
