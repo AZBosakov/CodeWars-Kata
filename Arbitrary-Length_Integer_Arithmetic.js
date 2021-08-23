@@ -25,8 +25,14 @@
         const DP = '.';
         
         const methods = {
-            negate() {},
-            toString(targetE = 0) {},
+            negate() {
+                return Object.freeze(
+                    Object.assign(
+                        Object.create(methods), this, {sign: this.sign * -1}
+                    )
+                );
+            },
+            toString(targetE = 0) {console.log('TO_STRING');},
         }
         
         return numStr => {
@@ -36,14 +42,17 @@
             }
             const [i, f] = (parse[2] + DP).split(DP, 2);
             const [, digits, r0s] = (i + f).match(/^0*(\d+?)(0*)$/);
+            const obj = Object.create(methods);
             if (digits == '0') {
-                return {digits, sign: 0, exp: 0};
+                Object.assign(obj, {digits, sign: 0, exp: 0});
+            } else {
+                Object.assign(obj, {
+                    digits,
+                    sign: (parse[1] == '-') ? -1 : 1,
+                    exp: (parse[3] || 0) - f.length + r0s.length
+                });
             }
-            return {
-                digits,
-                sign: (parse[1] == '-') ? -1 : 1,
-                exp: (parse[3] || 0) - f.length + r0s.length
-            };
+            return Object.freeze(obj);
         }
     })();
         
