@@ -49,6 +49,7 @@
         }
         
         return numStr => {
+            numStr += '';
             const parse = numStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
             if (! parse) {
                 throw new TypeError(`Arg. must be a parseFloat()-style string, ${numStr} passed`);
@@ -175,9 +176,13 @@
         return PF(sign + join10E(resDL) + 'e' + resultExp);
     }
     
+    const mul = (a, b) => {
+        
+    }
+    
     const OPS = {
-        add: (a, b) => sum(PF(String(a)), PF(String(b))) + '',
-        subtract: (a, b) => sum(PF(String(a)), PF(String(b)).negate()) + '',
+        add: (a, b) => sum(PF(a), PF(b)) + '',
+        subtract: (a, b) => sum(PF(a), PF(b).negate()) + '',
         multiply: (a, b) => {
             
             return 'MUL';
