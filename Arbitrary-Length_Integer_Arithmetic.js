@@ -182,20 +182,26 @@
     }
     
     const mul = (a, b) => {
+        if (! (a.sign && b.sign)) return PF(0);
+        if (a.digits == 1) return b.shift(a.exp);
+        if (b.digits == 1) return a.shift(b.exp);
         
+        return 'MULT';
+    }
+    
+    const div = (a, b, prec = 0) => {
+        if (! b.sign) throw new RangeError('Divide by 0');
+        if (a.digits == 0) return PF(0);
+        if (b.digits == 1) return a.shift(-b.exp);
+        
+        return 'DIV';
     }
     
     const OPS = {
         add: (a, b) => sum(PF(a), PF(b)) + '',
         subtract: (a, b) => sum(PF(a), PF(b).negate()) + '',
-        multiply: (a, b) => {
-            
-            return 'MUL';
-        },
-        divide: (a, b, fds = 0) => {
-            
-            return 'DIV';
-        },
+        multiply: (a, b) => mul(PF(a), PF(b)) + '',
+        divide: (a, b, prec = 0) => div(PF(a), PF(b), prec) + '',
     }
   /*  
     return OPS;
