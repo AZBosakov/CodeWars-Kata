@@ -72,35 +72,6 @@
     // UTIL: left pad with 0
     const lp0 = n => '0'.repeat(BASE10E - String(n).length) + n;
     
-    // UTIL: parse float: '-123.456e-3' => {s: -1, m: 123456, e: -6}
-    const f2sme = fStr => {
-        const parse = fStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
-        if (! parse) return null;
-        const [, int, frac] = parse[2].match(/^(\d*)\.?(\d*)$/);
-        const [,m, zs] = (int + frac).match(/^0*(\d+?)(0*)$/);
-        return {
-            m,
-            s: m == '0' ? 0 : (parse[1] + 1)|0,
-            e: m == '0' ? 0 : (parse[3]|0) - frac.length + zs.length,
-        };
-    }
-    // UTIL: opposite of f2sme()
-    const sme2f = (fObj, targetE = 0) => {
-        if (! fObj.s) return '0';
-        const sign = (fObj.s < 0) ? '-' : '';
-        const e = fObj.e - targetE;
-        if (e >= 0) {
-            return sign + fObj.m + '0'.repeat(e);
-        }
-        const padFrac = -(fObj.m.length + e);
-        const frac = '0'.repeat(padFrac > 0 ? padFrac : 0) + fObj.m.slice(e);
-        const int = fObj.m.slice(0, e) || '0';
-        return `${sign}${int}.${frac}` + (targetE ? `e${targetE}` : '');
-    }
-    
-    // UTIL: Negate the number in its object representation
-    const negFO = fo => ({...fo, s: fo.s * -1});
-    
     // UTIL: split string into digits in BASE10E, from the LEFT
     const split10E = str => {
         const dl = [];
@@ -189,11 +160,11 @@
     
     const sum = (...fos) => {
         // find min common exponent
-        const resultExp = Math.min(...fos.map(fo => fo.e));
+        const resultExp = Math.min(...fos.map(fo => fo.exp));
         // right pad with 0s, to equalize the exponents
-        const strs = fos.map(fo => fo.m + '0'.repeat(fo.e - resultExp));
+        const strs = fos.map(fo => fo.digits + '0'.repeat(fo.exp - resultExp));
         let resDL = strs.map(str => split10E(str)).reduce(
-            (sum, dl, dli) => (fos[dli].s > 0) ? adder.add(sum, dl) : adder.sub(sum, dl),
+            (sum, dl, dli) => (fos[dli].sign > 0) ? adder.add(sum, dl) : adder.sub(sum, dl),
             [0]
         );
         let sign = '';
@@ -201,16 +172,12 @@
             resDL = adder.sub([0], resDL);
             sign = '-';
         }
-        return f2sme(sign + join10E(resDL) + 'e' + resultExp);
+        return PF(sign + join10E(resDL) + 'e' + resultExp);
     }
     
     const OPS = {
-        add: (a, b) => sme2f(
-            sum(f2sme(String(a)), f2sme(String(b)))
-        ),
-        subtract: (a, b) => sme2f(
-            sum(f2sme(String(a)), negFO(f2sme(String(b))))
-        ),
+        add: (a, b) => sum(PF(String(a)), PF(String(b))) + '',
+        subtract: (a, b) => sum(PF(String(a)), PF(String(b)).negate()) + '',
         multiply: (a, b) => {
             
             return 'MUL';
