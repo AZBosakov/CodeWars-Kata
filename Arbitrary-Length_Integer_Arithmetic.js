@@ -32,7 +32,21 @@
                     )
                 );
             },
-            toString(targetE = 0) {console.log('TO_STRING');},
+            toString(targetE = 0) {
+                if (! this.sign) return '0';
+                const s = this.sign < 0 ? '-' : '';
+                const e = targetE ? 'e' + targetE : '';
+                const lShift = this.exp - targetE;
+                let d = '';
+                if (lShift >= 0) {
+                    d = this.digits + '0'.repeat(lShift);
+                } else {
+                    d = this.digits.slice(0, lShift) || '0';
+                    const frac = this.digits.slice(lShift);
+                    d += DP + '0'.repeat(-(lShift + frac.length)) + frac;
+                }
+                return s + d + e;
+            },
         }
         
         return numStr => {
