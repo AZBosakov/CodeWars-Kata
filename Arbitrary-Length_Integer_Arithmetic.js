@@ -21,6 +21,32 @@
     
     const SED = Symbol.for('sign_extension_digit');
     
+    const PF = (() => {
+        const DP = '.';
+        
+        const methods = {
+            negate() {},
+            toString(targetE = 0) {},
+        }
+        
+        return numStr => {
+            const parse = numStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
+            if (! parse) {
+                throw new TypeError(`Arg. must be a parseFloat()-style string, ${numStr} passed`);
+            }
+            const [i, f] = (parse[2] + DP).split(DP, 2);
+            const [, digits, r0s] = (i + f).match(/^0*(\d+?)(0*)$/);
+            if (digits == '0') {
+                return {digits, sign: 0, exp: 0};
+            }
+            return {
+                digits,
+                sign: (parse[1] == '-') ? -1 : 1,
+                exp: (parse[3] || 0) - f.length + r0s.length
+            };
+        }
+    })();
+        
     // UTIL: left pad with 0
     const lp0 = n => '0'.repeat(BASE10E - String(n).length) + n;
     
