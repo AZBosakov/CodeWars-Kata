@@ -31,7 +31,16 @@
                     )
                 );
             },
+            shift(sh = 0) {
+                sh = Math.round(sh);
+                return Object.freeze(
+                    Object.assign(
+                        Object.create(methods), this, {exp: this.exp + sh}
+                    )
+                );
+            },
             toString(targetE = 0) {
+                targetE = Math.round(targetE);
                 if (! this.sign) return '0';
                 const s = this.sign < 0 ? '-' : '';
                 const e = targetE ? 'e' + targetE : '';
