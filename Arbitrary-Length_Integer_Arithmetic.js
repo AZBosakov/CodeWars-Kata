@@ -39,6 +39,13 @@
                     )
                 );
             },
+            withSign(s) {
+                return Object.freeze(
+                    Object.assign(
+                        Object.create(methods), this, {sign: Math.sign(s)}
+                    )
+                );
+            },
             toString(targetE = 0) {
                 targetE = Math.round(targetE);
                 if (! this.sign) return '0';
@@ -182,17 +189,19 @@
     }
     
     const mul = (a, b) => {
-        if (! (a.sign && b.sign)) return PF(0);
-        if (a.digits == 1) return b.shift(a.exp);
-        if (b.digits == 1) return a.shift(b.exp);
+        const rs = a.sign * b.sign;
+        if (! rs) return PF(0);
+        if (a.digits == 1) return b.shift(a.exp).withSign(rs);
+        if (b.digits == 1) return a.shift(b.exp).withSign(rs);
         
         return 'MULT';
     }
     
     const div = (a, b, prec = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
-        if (a.digits == 0) return PF(0);
-        if (b.digits == 1) return a.shift(-b.exp);
+        const rs = a.sign * b.sign;
+        if (a.digits == 0) return PF(0).withSign(rs);
+        if (b.digits == 1) return a.shift(-b.exp).withSign(rs);
         
         return 'DIV';
     }
