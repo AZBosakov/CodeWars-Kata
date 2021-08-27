@@ -194,14 +194,19 @@
         if (a.digits == 1) return b.shift(a.exp).withSign(rs);
         if (b.digits == 1) return a.shift(b.exp).withSign(rs);
         
+        const re = a.exp + b.exp;
+        
+        
         return 'MULT';
     }
     
-    const div = (a, b, prec = 0) => {
+    const div = (a, b, decPl = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
         if (a.digits == 0) return PF(0).withSign(rs);
         if (b.digits == 1) return a.shift(-b.exp).withSign(rs);
+        
+        const re = a.exp - b.exp;
         
         return 'DIV';
     }
@@ -210,7 +215,7 @@
         add: (a, b) => sum(PF(a), PF(b)) + '',
         subtract: (a, b) => sum(PF(a), PF(b).negate()) + '',
         multiply: (a, b) => mul(PF(a), PF(b)) + '',
-        divide: (a, b, prec = 0) => div(PF(a), PF(b), prec) + '',
+        divide: (a, b, decPl = 0) => div(PF(a), PF(b), decPl) + '',
     }
   /*  
     return OPS;
