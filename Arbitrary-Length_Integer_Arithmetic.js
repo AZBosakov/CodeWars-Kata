@@ -82,7 +82,7 @@
         
         return numStr => {
             numStr += '';
-            const parse = numStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i);
+            const parse = numStr.match(/^\s*([+-]?)(\d+(?:\.\d*)?|\d*\.\d+)(?:e([+-]?\d+))?/i); //TODO - DP
             if (! parse) {
                 throw new TypeError(`Arg. must be a parseFloat()-style string, ${numStr} passed`);
             }
@@ -202,6 +202,14 @@
             sign = '-';
         }
         return PF(sign + DL.stringify(resDL) + 'e' + resultExp);
+    }
+    
+    const karatsuba = (dl1, dl2) => {
+        if (DL.is0(dl1) || DL.is0(dl2)) return [0];
+        let pob;
+        if (~(pob = DL.powerOfBase(dl1))) return DL.leftShift(dl2, pob);
+        if (~(pob = DL.powerOfBase(dl2))) return DL.leftShift(dl1, pob);
+        
     }
     
     const mul = (a, b) => {
