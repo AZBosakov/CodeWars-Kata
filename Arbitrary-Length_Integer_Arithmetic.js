@@ -23,15 +23,16 @@
     const PF = (() => {
         const DP = '.';
         
-        const methods = {
+        const methods = Object.freeze({
             negate() {
                 return Object.freeze(
                     Object.assign(
-                        Object.create(methods), this, {sign: this.sign * -1}
+                        Object.create(methods), this, {sign: -this.sign}
                     )
                 );
             },
             shift(sh = 0) {
+                if (! this.sign) return this;
                 sh = Math.round(sh);
                 return Object.freeze(
                     Object.assign(
@@ -40,9 +41,24 @@
                 );
             },
             withSign(s) {
+                if (this.sign && !s) throw new RangeError("Can't set sign 0 on non-zero num");
                 return Object.freeze(
                     Object.assign(
-                        Object.create(methods), this, {sign: Math.sign(s)}
+                        Object.create(methods), this, {sign: this.sign ? Math.sign(s) : 0}
+                    )
+                );
+            },
+            truncate(decPl = 0) {
+                decPl = Math.min(-this.exp, decPl);
+                const trunc = this.digits.slice(0, (this.exp + decPl) || undefined) || '0';
+                const isZero = trunc == '0';
+                return Object.freeze(
+                    Object.assign(
+                        Object.create(methods), this, {
+                            digits: trunc,
+                            exp: isZero ? 0 : -decPl,
+                            sign: isZero ? 0 : this.sign
+                        }
                     )
                 );
             },
@@ -62,7 +78,7 @@
                 }
                 return s + d + e;
             },
-        }
+        });
         
         return numStr => {
             numStr += '';
@@ -203,8 +219,8 @@
     const div = (a, b, decPl = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
-        if (a.digits == 0) return PF(0).withSign(rs);
-        if (b.digits == 1) return a.shift(-b.exp).withSign(rs);
+        if (! rs) return PF(0);
+        if (b.digits == 1) return a.shift(-b.exp).withSign(rs).trncate(decPl);
         
         const re = a.exp - b.exp;
         
