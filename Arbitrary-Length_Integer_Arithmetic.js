@@ -205,11 +205,45 @@
     }
     
     const karatsuba = (dl1, dl2) => {
+        // handle [], [0], [0,0,...]
         if (DL.is0(dl1) || DL.is0(dl2)) return [0];
         let pob;
+        // handle [1], [0,1], [0,0,1], ...
         if (~(pob = DL.powerOfBase(dl1))) return DL.leftShift(dl2, pob);
         if (~(pob = DL.powerOfBase(dl2))) return DL.leftShift(dl1, pob);
         
+        const dc = Math.max(dl1.length, dl2.length);
+        if (dc == 1) {
+            const p = dl1[0] * dl2[0];
+            const l = p % BASE;
+            const h = Math.floor(p / BASE);
+            const res = [l];
+            if (h) res.push(h);
+            return res;
+        }
+        
+        const n = Math.ceil(dc / 2);
+        
+        const a = dl1.slice(n);
+        const b = dl1.slice(0, n);
+        const c = dl2.slice(n);
+        const d = dl2.slice(0, n);
+        
+        const ac = karatsuba(a, c);
+        const bd = karatsuba(b, d);
+        
+        const {add, sub, leftShift: lsh} = DL;
+        const a$b = add(a, b);
+        const c$d = add(c, d);
+        
+        let t = karatsuba(a$b, c$d);
+        
+		const ad$bc = sub(sub(t, ac), bd);
+        
+        const h = lsh(ac, n*2);
+        const m = lsh(ad$bc, n);
+        
+        return add(add(h, m), bd);
     }
     
     const mul = (a, b) => {
@@ -220,8 +254,13 @@
         
         const re = a.exp + b.exp;
         
+        const resultDL = karatsuba(DL.fromString(a.digits), DL.fromString(b.digits));
         
-        return 'MULT';
+        return PF(
+            rs < 0 ? '-' :'' +
+            DL.stringify(resultDL) +
+            'e' + re
+        );
     }
     
     const div = (a, b, decPl = 0) => {
