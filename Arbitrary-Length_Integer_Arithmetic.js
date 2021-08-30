@@ -281,13 +281,27 @@
     const div = (a, b, decPl = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
-        if (! rs) return PF(0);
+        if (! rs) return PF(0); // dividend == 0
         if (b.digits == 1) return a.shift(-b.exp).withSign(rs).truncate(decPl);
         let re = a.exp - b.exp;
         if (a.digits == b.digits) return PF(1).shift(re).withSign(rs).truncate(decPl);
         
+        let dla = DL.fromString(a.digits);
+        const dlb = DL.fromString(b.digits);
         
-        const resultDL = DL.iDiv(DL.fromString(a.digits), DL.fromString(b.digits));
+        /**
+         * ensure dividend to be bigger than the divisor;
+         * right-pad digit list A with 0s if neccessary,
+         * and adjust the Result Exp re
+         */
+        let shift = dlb.length - dla.length;
+        if (!shift && (dla[dla.length-1] <= dlb[dlb.length-1])) shift++;
+        if (shift > 0) {
+            dla = DL.leftShift(dla, shift);
+            re -= shift * BASE10E;
+        }
+        
+        const resultDL = DL.iDiv(dla, dlb);
         
         return PF(
             rs < 0 ? '-' :'' +
