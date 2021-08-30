@@ -266,7 +266,6 @@
         );
     }
     
-    // dla MUST be bigger number than dlb
     const longIDiv = (dla, dlb) => {
         const la = dla.length - 1;
         const lb = dlb.length - 1;
@@ -286,28 +285,12 @@
         let re = a.exp - b.exp;
         if (a.digits == b.digits) return PF(1).shift(re).withSign(rs).truncate(decPl);
         
-        let dla = DL.fromString(a.digits);
+        const dla = DL.fromString(a.digits);
         const dlb = DL.fromString(b.digits);
-        
-        /**
-         * ensure dividend to be bigger than the divisor;
-         * right-pad digit list A with 0s if neccessary,
-         * and adjust the Result Exp re
-         */
-        let shift = dlb.length - dla.length;
-        if (!shift && (dla[dla.length-1] <= dlb[dlb.length-1])) shift++;
-        if (shift > 0) {
-            dla = DL.leftShift(dla, shift);
-            re -= shift * BASE10E;
-        }
         
         const resultDL = DL.iDiv(dla, dlb);
         
-        return PF(
-            rs < 0 ? '-' :'' +
-            DL.stringify(resultDL) +
-            'e' + re
-        );
+        return PF(DL.stringify(resultDL)).shift(re).withSign(rs).truncate(decPl);
     }
     
     const OPS = {
