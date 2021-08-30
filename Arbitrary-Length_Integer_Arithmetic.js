@@ -147,9 +147,15 @@
             ndl[SED] = dl[SED] || 0;
             return ndl;
         },
-        signExtend: (dl, i) => (i < dl.length) ? dl[i] : (dl[SED] || 0),
+        // for i > dl.length return the sign extension; for negative i return 0
+        get: (dl, i) => {
+            if (!dl[SED]) dl[SED] = 0;
+            if (i >= dl.length) return dl[SED];
+            if (i < 0) return 0;
+            return dl[i];
+        },
         /**
-        * Remove the most signifficant sign digits, equal to [SED]
+        * Remove the most signifficant digits, equal to [SED]
         * Does not create new array - modifies the passed one
         */
         trim: dl => {
@@ -175,8 +181,8 @@
             const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + SED
             const result = [];
             for (let i = 0; i < maxDigits; i++) {
-                const ai = DL.signExtend(a, i);
-                let bi = DL.signExtend(b, i);
+                const ai = DL.get(a, i);
+                let bi = DL.get(b, i);
                 if (CMPL) bi = N_NINES - bi;
                 const si = ai + bi + carry;
                 carry = Math.floor(si / BASE);
