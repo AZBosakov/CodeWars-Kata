@@ -204,6 +204,7 @@
         return PF(sign + DL.stringify(resDL) + 'e' + resultExp);
     }
     
+    // googled it, translated from the python example
     const karatsuba = (dl1, dl2) => {
         // handle [], [0], [0,0,...]
         if (DL.is0(dl1) || DL.is0(dl2)) return [0];
