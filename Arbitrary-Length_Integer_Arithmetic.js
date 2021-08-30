@@ -247,6 +247,8 @@
         return add(add(h, m), bd);
     }
     
+    DL.mul = karatsuba;
+    
     const mul = (a, b) => {
         const rs = a.sign * b.sign;
         if (! rs) return PF(0);
@@ -255,7 +257,7 @@
         
         const re = a.exp + b.exp;
         
-        const resultDL = karatsuba(DL.fromString(a.digits), DL.fromString(b.digits));
+        const resultDL = DL.mul(DL.fromString(a.digits), DL.fromString(b.digits));
         
         return PF(
             rs < 0 ? '-' :'' +
@@ -264,15 +266,34 @@
         );
     }
     
+    // dla MUST be bigger number than dlb
+    const longIDiv = (dla, dlb) => {
+        const la = dla.length - 1;
+        const lb = dlb.length - 1;
+        if (
+            (la < lb) || (la == lb && dla[la] < dlb[lb])
+        ) throw new RangeError("Divident smaller than the divisor!");
+        
+    }
+    
+    DL.iDiv = longIDiv;
+    
     const div = (a, b, decPl = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
         if (! rs) return PF(0);
-        if (b.digits == 1) return a.shift(-b.exp).withSign(rs).trncate(decPl);
+        if (b.digits == 1) return a.shift(-b.exp).withSign(rs).truncate(decPl);
+        let re = a.exp - b.exp;
+        if (a.digits == b.digits) return PF(1).shift(re).withSign(rs).truncate(decPl);
         
-        const re = a.exp - b.exp;
         
-        return 'DIV';
+        const resultDL = DL.iDiv(DL.fromString(a.digits), DL.fromString(b.digits));
+        
+        return PF(
+            rs < 0 ? '-' :'' +
+            DL.stringify(resultDL) +
+            'e' + re
+        );
     }
     
     const OPS = {
