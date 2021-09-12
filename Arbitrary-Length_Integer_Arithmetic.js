@@ -141,9 +141,15 @@
             });
             return power;
         },
-        leftShift: (dl, n) => { //TODO
-            if (n < 0) throw new RangeException(`Invalid left shift: ${n}`);
-            const ndl = [...Array(n).fill(0), ...dl];
+        shift: (dl, n) => {
+            if (! n) return dl;
+            let ndl;
+            if (n < 0) {
+                if (-n > dl.length) return [0];
+                ndl = dl.slice(-n);
+            } else {
+                ndl = [...Array(n).fill(0), ...dl];
+            }
             ndl[SED] = dl[SED] || 0;
             return ndl;
         },
@@ -232,8 +238,8 @@
         if (DL.is0(dl1) || DL.is0(dl2)) return [0];
         let pob;
         // handle [1], [0,1], [0,0,1], ...
-        if (~(pob = DL.powerOfBase(dl1))) return DL.leftShift(dl2, pob);
-        if (~(pob = DL.powerOfBase(dl2))) return DL.leftShift(dl1, pob);
+        if (~(pob = DL.powerOfBase(dl1))) return DL.shift(dl2, pob);
+        if (~(pob = DL.powerOfBase(dl2))) return DL.shift(dl1, pob);
         
         const dc = Math.max(dl1.length, dl2.length);
         if (dc == 1) {
@@ -255,18 +261,17 @@
         const ac = karatsuba(a, c);
         const bd = karatsuba(b, d);
         
-        const {add, sub, leftShift: lsh} = DL;
-        const a$b = add(a, b);
-        const c$d = add(c, d);
+        const a$b = DL.add(a, b);
+        const c$d = DL.add(c, d);
         
         let t = karatsuba(a$b, c$d);
         
-		const ad$bc = sub(sub(t, ac), bd);
+		const ad$bc = DL.sub(DL.sub(t, ac), bd);
         
-        const h = lsh(ac, n*2);
-        const m = lsh(ad$bc, n);
+        const h = DL.shift(ac, n*2);
+        const m = DL.shift(ad$bc, n);
         
-        return add(add(h, m), bd);
+        return DL.add(DL.add(h, m), bd);
     }
     
     DL.mul = karatsuba;
@@ -290,6 +295,8 @@
     
     const longDiv = (dla, dlb) => {
         return [7]; // TODO: STUB
+        
+        const max = Math.max(dla.length, dlb.length);
         
         
     }
