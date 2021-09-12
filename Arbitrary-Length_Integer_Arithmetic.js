@@ -287,13 +287,18 @@
         );
     }
     
-    const longDiv = (dla, dlb, prec) => {
+    const longDiv = (dla, dlb) => {
+        return [7]; // TODO: STUB
+        
         
     }
     
-    DL.div = longDiv;
+    DL.idiv = function(dla, dlb) {
+        if (this.cmp(dla, dlb) != 1) return [0];
+        return longDiv(dla, dlb);
+    };
     
-    const div = (a, b, decPl = 0) => {
+    const div = (a, b, decPl) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
         if (! rs) return PF(0); // dividend == 0
@@ -305,12 +310,10 @@
         const resultExp = Math.min(...pfs.map(pf => pf.exp));
         // right pad with 0s, to equalize the exponents
         const [dla, dlb] = pfs
-            .map(pf => pf.digits + '0'.repeat(pf.exp - resultExp))
+            .map(pf => pf.digits + '0'.repeat(pf.exp - resultExp + (decPl > 0 && decPl)))
             .map(str => DL.fromString(str));
             
-        let prec = 0; // TODO
-        
-        const resultDL = DL.div(dla, dlb, prec);
+        const resultDL = DL.idiv(dla, dlb);
         
         return PF(DL.stringify(resultDL)).shift(resultExp).withSign(rs).truncate(decPl);
     }
