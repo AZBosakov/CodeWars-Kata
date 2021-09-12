@@ -190,21 +190,21 @@
      * The sign extension digit is stored in [SED] prop of the array.
      */
     ['add', 'sub'].forEach((op, opIdx) => {
-        DL[op] = (a, b) => {
+        DL[op] = function (a, b) {
             const CMPL = opIdx; // BASE complement needed?
             let carry = opIdx; // 0 || 1
             const maxDigits = Math.max(a.length, b.length) + 2; // +2 for carry + SED
             const result = [];
             for (let i = 0; i < maxDigits; i++) {
-                const ai = DL.get(a, i);
-                let bi = DL.get(b, i);
+                const ai = this.get(a, i);
+                let bi = this.get(b, i);
                 if (CMPL) bi = N_NINES - bi;
                 const si = ai + bi + carry;
                 carry = Math.floor(si / BASE);
                 result.push(si % BASE);
             }
             result[SED] = result[result.length - 1];
-            return DL.trim(result);
+            return this.trim(result);
         }
     });
     
