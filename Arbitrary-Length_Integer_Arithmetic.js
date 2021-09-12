@@ -208,13 +208,13 @@
         }
     });
     
-    const sum = (...fos) => {
+    const sum = (...pfs) => {
         // find min common exponent
-        const resultExp = Math.min(...fos.map(fo => fo.exp));
+        const resultExp = Math.min(...pfs.map(pf => pf.exp));
         // right pad with 0s, to equalize the exponents
-        const strs = fos.map(fo => fo.digits + '0'.repeat(fo.exp - resultExp));
+        const strs = pfs.map(pf => pf.digits + '0'.repeat(pf.exp - resultExp));
         let resDL = strs.map(str => DL.fromString(str)).reduce(
-            (sum, dl, dli) => (fos[dli].sign > 0) ? DL.add(sum, dl) : DL.sub(sum, dl),
+            (sum, dl, dli) => (pfs[dli].sign > 0) ? DL.add(sum, dl) : DL.sub(sum, dl),
             [0]
         );
         let sign = '';
@@ -298,17 +298,21 @@
         const rs = a.sign * b.sign;
         if (! rs) return PF(0); // dividend == 0
         if (b.digits == 1) return a.shift(-b.exp).withSign(rs).truncate(decPl);
-        let re = a.exp - b.exp;
-        if (a.digits == b.digits) return PF(1).shift(re).withSign(rs).truncate(decPl);
+        if (a.digits == b.digits) return PF(1).shift(a.exp - b.exp).withSign(rs).truncate(decPl);
         
-        const dla = DL.fromString(a.digits);
-        const dlb = DL.fromString(b.digits);
-        
+        // find min common exponent
+        const pfs = [a, b];
+        const resultExp = Math.min(...pfs.map(pf => pf.exp));
+        // right pad with 0s, to equalize the exponents
+        const [dla, dlb] = pfs
+            .map(pf => pf.digits + '0'.repeat(pf.exp - resultExp))
+            .map(str => DL.fromString(str));
+            
         let prec = 0; // TODO
         
-        const resultDL = DL.div(dla, dlb, prec); //TODO prec
+        const resultDL = DL.div(dla, dlb, prec);
         
-        return PF(DL.stringify(resultDL)).shift(re).withSign(rs).truncate(decPl);
+        return PF(DL.stringify(resultDL)).shift(resultExp).withSign(rs).truncate(decPl);
     }
     
     const OPS = {
