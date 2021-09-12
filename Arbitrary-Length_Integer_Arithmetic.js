@@ -165,6 +165,21 @@
             dl.length = i+1;
             return dl;
         },
+        cmp(dla, dlb) {
+            this.trim(dla);
+            this.trim(dlb);
+            let sedDiff = dlb[SED] - dla[SED];
+            if (sedDiff) return Math.sign(sedDiff);
+            let lenDiff = dla.length - dlb.length;
+            let isNeg = dla[SED] ? -1 : 1;
+            if (lenDiff) return Math.sign(lenDiff * isNeg);
+            let i = dla.length;
+            while(i--) {
+                const d = dla[i] - dlb[i];
+                if (d) return Math.sign(d);
+            }
+            return 0;
+        }
     };
     
     /**
@@ -272,16 +287,11 @@
         );
     }
     
-    const longIDiv = (dla, dlb) => {
-        const la = dla.length - 1;
-        const lb = dlb.length - 1;
-        if (
-            (la < lb) || (la == lb && dla[la] < dlb[lb])
-        ) throw new RangeError("Divident smaller than the divisor!");
+    const longDiv = (dla, dlb, prec) => {
         
     }
     
-    DL.iDiv = longIDiv;
+    DL.div = longDiv;
     
     const div = (a, b, decPl = 0) => {
         if (! b.sign) throw new RangeError('Divide by 0');
@@ -294,7 +304,9 @@
         const dla = DL.fromString(a.digits);
         const dlb = DL.fromString(b.digits);
         
-        const resultDL = DL.iDiv(dla, dlb);
+        let prec = 0; // TODO
+        
+        const resultDL = DL.div(dla, dlb, prec); //TODO prec
         
         return PF(DL.stringify(resultDL)).shift(re).withSign(rs).truncate(decPl);
     }
