@@ -179,7 +179,8 @@
                 if (d) return Math.sign(d);
             }
             return 0;
-        }
+        },
+        msd: dl => dl[dl.length - 1],
     };
     
     /**
