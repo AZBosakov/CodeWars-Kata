@@ -5,14 +5,14 @@
  * but I'm coding floats support as an excersize
  */
 
-const {
-    add, subtract, multiply, divide
-} = (() => {
+// const {
+//     add, subtract, multiply, divide
+// } = (() => {
     /**
      * Use base 10^LOG_BASE instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
-     * The [SED] prop is used for sign extension digit in BASE-complement add/subtract.
+     * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
     const LOG_BASE = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**LOG_BASE;
@@ -363,6 +363,6 @@ const {
         multiply: (a, b) => OP.mul(PF(a), PF(b)) + '',
         divide: (a, b, decPl = 0) => OP.div(PF(a), PF(b), decPl) + '',
     }
-    
+  /*  
     return FUNC;
-})();
+})();*/
