@@ -87,7 +87,7 @@ foreach ($byKyu as $kyu => $katas) {
         echo "|||\n";
         echo "|:-|:-|\n";
         foreach ($kata['files'] as $lang => $file) {
-            echo "|$lang : |[$file](./$file)|\n";
+            echo "|$lang|[$file](./$file)|\n";
         }
         echo "\n";
     }
