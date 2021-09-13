@@ -302,9 +302,23 @@
     
     // NEVER pass negative dls
     ALGO.longDiv = (dla, dlb) => {
-        return [7]; // TODO: STUB
+        let i = dla.length - dlb.length;
+        let mod = dla.slice(i);
+        if (DL.cmp(mod, dlb) < 0) mod.unshift(dla[--i]);
+        let mod_ = mod;
+        const revRes = [];
         
+        while (1 + i--) {
+            let cr = 0;
+            while (! (mod_ = DL.sub(mod, dlb))[SED]) {
+                cr++;
+                mod = mod_;
+            }
+            mod.unshift(dla[i]);
+            revRes.push(cr);
+        }
         
+        return revRes.reverse(); // TODO: STUB
     }
     
     DL.idiv = (dla, dlb) => {
