@@ -14,7 +14,7 @@
      * Operations act uppon arrays of digits in BASE.
      * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**BASE10E;
     const N_NINES = BASE - 1;
     
@@ -340,11 +340,17 @@
         
         // find min common exponent
         const pfs = [a, b];
-        const resultExp = Math.min(...pfs.map(pf => pf.exp));
+        let resultExp = Math.min(...pfs.map(pf => pf.exp));
         // right pad with 0s, to equalize the exponents
-        const [dla, dlb] = pfs
-            .map(pf => pf.digits + '0'.repeat(pf.exp - resultExp + (decPl > 0 && decPl)))
-            .map(str => DL.fromString(str));
+        const strs = pfs.map(
+            pf => pf.digits + '0'.repeat(pf.exp - resultExp)
+        );
+        if (decPl > 0) {
+            strs[0] += '0'.repeat(decPl);
+            resultExp -= decPl;
+        }
+        
+        const [dla, dlb] = strs.map(str => DL.fromString(str));
             
         const resultDL = DL.idiv(dla, dlb);
         
