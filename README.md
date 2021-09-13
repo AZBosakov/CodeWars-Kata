@@ -12,6 +12,11 @@
 |JavaScript : |[Evaluate_mathematical_expression.js](./Evaluate_mathematical_expression.js)|
 
 ### 3 Kyu
+#### [Arbitrary-Length Integer Arithmetic](https://www.codewars.com/kata/530e69ae72d6dfced0000a9e)
+|||
+|:-|:-|
+|JavaScript : |[Arbitrary-Length_Integer_Arithmetic.js](./Arbitrary-Length_Integer_Arithmetic.js)|
+
 #### [Closest pair of points in linearithmic time](https://www.codewars.com/kata/5376b901424ed4f8c20002b7)
 |||
 |:-|:-|
