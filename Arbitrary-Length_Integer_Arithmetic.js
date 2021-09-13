@@ -9,13 +9,13 @@
 //     add, subtract, multiply, divide
 // } = (() => {
     /**
-     * Use base 10^BASE10E instead of individual digits.
+     * Use base 10^LOG_BASE instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
      * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const BASE10E = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
-    const BASE = 10**BASE10E;
+    const LOG_BASE = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const BASE = 10**LOG_BASE;
     const N_NINES = BASE - 1;
     
     const SED = Symbol.for('sign_extension_digit');
@@ -107,21 +107,21 @@
     
     // NS for DigitList functions
     const DL = {
-        // split string into digits in BASE10E, from the LEFT
+        // split string into digits in LOG_BASE, from the LEFT
         fromString: digits => {
             const dl = [];
             let e = 0;
             let chunk = '';
             while (
-                chunk = digits.slice(e - BASE10E, e || undefined)
+                chunk = digits.slice(e - LOG_BASE, e || undefined)
             ) {
                 dl.push(parseFloat('0' + chunk));
-                e -= BASE10E;
+                e -= LOG_BASE;
             }
             dl[SED] = 0;
             return dl;
         },
-        stringify: dl => dl.map(n => '0'.repeat(BASE10E - (n+'').length) + n).reverse().join(''),
+        stringify: dl => dl.map(n => '0'.repeat(LOG_BASE - (n+'').length) + n).reverse().join(''),
         is0: dl => !(dl[SED] || ~dl.findIndex(d => d)),
         /**
          * return the power of BASE for digit lists 1,0,0...
