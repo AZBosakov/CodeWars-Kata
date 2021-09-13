@@ -102,6 +102,9 @@
         }
     })();
     
+    const OP = {}; // NS for the operations
+    const ALGO = {}; // NS for the algorithms
+    
     // NS for DigitList functions
     const DL = {
         // split string into digits in BASE10E, from the LEFT
@@ -215,7 +218,7 @@
         }
     });
     
-    const sum = (...pfs) => {
+    OP.sum = (...pfs) => {
         // find min common exponent
         const resultExp = Math.min(...pfs.map(pf => pf.exp));
         // right pad with 0s, to equalize the exponents
@@ -233,7 +236,8 @@
     }
     
     // googled it, translated from the python example
-    const karatsuba = (dl1, dl2) => {
+    // NEVER pass negative dls
+    ALGO.karatsuba = function (dl1, dl2) {
         // handle [], [0], [0,0,...]
         if (DL.is0(dl1) || DL.is0(dl2)) return [0];
         let pob;
@@ -258,13 +262,13 @@
         const c = dl2.slice(n);
         const d = dl2.slice(0, n);
         
-        const ac = karatsuba(a, c);
-        const bd = karatsuba(b, d);
+        const ac = this.karatsuba(a, c);
+        const bd = this.karatsuba(b, d);
         
         const a$b = DL.add(a, b);
         const c$d = DL.add(c, d);
         
-        let t = karatsuba(a$b, c$d);
+        let t = this.karatsuba(a$b, c$d);
         
 		const ad$bc = DL.sub(DL.sub(t, ac), bd);
         
@@ -274,9 +278,12 @@
         return DL.add(DL.add(h, m), bd);
     }
     
-    DL.mul = karatsuba;
+    DL.mul = (dla, dlb) => {
+        if (dla[SED] || dlb[SED]) throw new RangeError("Only non-negative digit list allowed");
+        return ALGO.karatsuba(dla, dlb);
+    }
     
-    const mul = (a, b) => {
+    OP.mul = (a, b) => {
         const rs = a.sign * b.sign;
         if (! rs) return PF(0);
         if (a.digits == 1) return b.shift(a.exp).withSign(rs);
@@ -293,20 +300,24 @@
         );
     }
     
-    const longDiv = (dla, dlb) => {
+    // NEVER pass negative dls
+    ALGO.longDiv = (dla, dlb) => {
         return [7]; // TODO: STUB
-        
-        const max = Math.max(dla.length, dlb.length);
         
         
     }
     
-    DL.idiv = function(dla, dlb) {
-        if (this.cmp(dla, dlb) != 1) return [0];
-        return longDiv(dla, dlb);
-    };
+    DL.idiv = (dla, dlb) => {
+        if (dla[SED] || dlb[SED]) throw new RangeError("Only non-negative digit list allowed");
+        
+        const cmp = DL.cmp(dla, dlb);
+        if (0 == cmp) return [1];
+        if (0 > cmp) return [0];
+        
+        return ALGO.longDiv(dla, dlb);
+    }
     
-    const div = (a, b, decPl) => {
+    OP.div = (a, b, decPl) => {
         if (! b.sign) throw new RangeError('Divide by 0');
         const rs = a.sign * b.sign;
         if (! rs) return PF(0); // dividend == 0
@@ -326,11 +337,11 @@
         return PF(DL.stringify(resultDL)).shift(resultExp).withSign(rs).truncate(decPl);
     }
     
-    const OPS = {
-        add: (a, b) => sum(PF(a), PF(b)) + '',
-        subtract: (a, b) => sum(PF(a), PF(b).negate()) + '',
-        multiply: (a, b) => mul(PF(a), PF(b)) + '',
-        divide: (a, b, decPl = 0) => div(PF(a), PF(b), decPl) + '',
+    const FUNC = {
+        add: (a, b) => OP.sum(PF(a), PF(b)) + '',
+        subtract: (a, b) => OP.sum(PF(a), PF(b).negate()) + '',
+        multiply: (a, b) => OP.mul(PF(a), PF(b)) + '',
+        divide: (a, b, decPl = 0) => OP.div(PF(a), PF(b), decPl) + '',
     }
   /*  
     return OPS;
