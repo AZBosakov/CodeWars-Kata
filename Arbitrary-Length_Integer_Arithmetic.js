@@ -5,16 +5,16 @@
  * but I'm coding floats support as an excersize
  */
 
-// const {
-//     add, subtract, multiply, divide
-// } = (() => {
+const {
+    add, subtract, multiply, divide
+} = (() => {
     /**
      * Use base 10^LOG_BASE instead of individual digits.
      * 
      * Operations act uppon arrays of digits in BASE.
      * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const LOG_BASE = 6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const LOG_BASE = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**LOG_BASE;
     const N_NINES = BASE - 1;
     
@@ -302,23 +302,28 @@
     
     // NEVER pass negative dls
     ALGO.longDiv = (dla, dlb) => {
+        DL.trim(dla);
+        DL.trim(dlb);
         let i = dla.length - dlb.length;
+        
         let mod = dla.slice(i);
         if (DL.cmp(mod, dlb) < 0) mod.unshift(dla[--i]);
         let mod_ = mod;
         const revRes = [];
-        
-        while (1 + i--) {
+                
+        while (true) {
             let cr = 0;
             while (! (mod_ = DL.sub(mod, dlb))[SED]) {
                 cr++;
                 mod = mod_;
             }
-            mod.unshift(dla[i]);
             revRes.push(cr);
+            
+            if (!i) return revRes.reverse();
+            
+            mod.unshift(dla[i - 1]);
+            i--;
         }
-        
-        return revRes.reverse(); // TODO: STUB
     }
     
     DL.idiv = (dla, dlb) => {
@@ -338,22 +343,23 @@
         if (b.digits == 1) return a.shift(-b.exp).withSign(rs).truncate(decPl);
         if (a.digits == b.digits) return PF(1).shift(a.exp - b.exp).withSign(rs).truncate(decPl);
         
-        // find min common exponent
+        // find the common exponent
         const pfs = [a, b];
-        let resultExp = Math.min(...pfs.map(pf => pf.exp));
+        let commonExp = Math.min(...pfs.map(pf => pf.exp));
         // right pad with 0s, to equalize the exponents
         const strs = pfs.map(
-            pf => pf.digits + '0'.repeat(pf.exp - resultExp)
+            pf => pf.digits + '0'.repeat(pf.exp - commonExp)
         );
+        
+        let resultExp = 0;
         if (decPl > 0) {
             strs[0] += '0'.repeat(decPl);
-            resultExp -= decPl;
+            resultExp = -decPl;
         }
         
         const [dla, dlb] = strs.map(str => DL.fromString(str));
             
         const resultDL = DL.idiv(dla, dlb);
-        
         return PF(DL.stringify(resultDL)).shift(resultExp).withSign(rs).truncate(decPl);
     }
     
@@ -363,6 +369,6 @@
         multiply: (a, b) => OP.mul(PF(a), PF(b)) + '',
         divide: (a, b, decPl = 0) => OP.div(PF(a), PF(b), decPl) + '',
     }
-  /*  
+    
     return FUNC;
-})();*/
+})();
