@@ -4,10 +4,10 @@
  * The kata requires only positive ints,
  * but I'm coding floats support as an excersize
  */
-/*
+
 const {
     add, subtract, multiply, divide
-} = (() => {*/
+} = (() => {
     /**
      * Use base 10^LOG_BASE instead of individual digits.
      * 
@@ -421,6 +421,6 @@ const {
         multiply: (a, b) => OP.mul(PF(a), PF(b)) + '',
         divide: (a, b, decPl = 0) => OP.div(PF(a), PF(b), decPl) + '',
     }
-    /*
+    
     return FUNC;
-})();*/
+})();
