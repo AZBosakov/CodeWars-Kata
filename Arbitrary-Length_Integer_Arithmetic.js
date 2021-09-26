@@ -300,8 +300,6 @@ const {
         const re = a.exp + b.exp;
         
         let resultDL = DL.mul(DL.fromString(a.digits), DL.fromString(b.digits));
-        
-        
         return PF(DL.stringify(resultDL)).shift(re).withSign(rs);
     }
     
