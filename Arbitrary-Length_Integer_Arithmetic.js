@@ -280,7 +280,7 @@ const {
     }
     
     DL.mul = function (dla, dlb) {
-        const isNeg = (dla[SED] != dlb[SED]);
+        const isNeg = (!dla[SED] != !dlb[SED]);
         let resultDL = ALGO.karatsuba(this.abs(dla), this.abs(dlb));
         return isNeg ? this.sub([0], resultDL) : resultDL;
     }
@@ -300,7 +300,8 @@ const {
     }
     
     // Works on absolute values
-    ALGO.longDiv = (dla, dlb) => {
+    // Uses repeated subtraction, SLOW with big bases
+    ALGO.longDivSub = (dla, dlb) => {
         dla = DL.abs(dla);
         dlb = DL.abs(dlb);
         let i = dla.length - dlb.length;
@@ -325,8 +326,8 @@ const {
         }
     }
     
-    
-    ALGO.longDivM = (dla, dlb) => {
+    // Works on absolute values
+    ALGO.longDivMul = (dla, dlb) => {
         dla = DL.abs(dla);
         dlb = DL.abs(dlb);
         let i = dla.length - dlb.length;
@@ -336,29 +337,43 @@ const {
         let mod_ = mod;
         const revRes = [];
         
-        const dlbMSD = dlb[dlb.length - 1];
+        const dvsrMSD = dlb[dlb.length - 1];
         
         while (true) {
             let modMSDs = mod[mod.length - 1];
             if (mod.length > dlb.length) {
                 modMSDs = modMSDs * BASE + mod[mod.length - 2];
             }
-            let crPre = Math.floor(modMSDs / dlbMSD) - 1;
-            let cr = crPre > 0 ? crPre : 0;
-
-                console.log(cr, mod);
+            let cr = Math.floor(modMSDs / dvsrMSD);
                 
+            console.log('mod', mod);
+            console.log(cr);
+            
             if (cr) {
+                const modMul = DL.mul(mod, [cr % BASE, Math.floor(cr / BASE)]);
                 
-                const modMul = DL.mul(mod, [cr]);
-                
-                console.log(modMul);
+                console.log('modMul', modMul);
                 
                 mod = DL.sub(mod, modMul);
+                
+                console.log('mod', mod);
             }
-            while (! (mod_ = DL.sub(mod, dlb))[SED]) {
-                cr++;
-                mod = mod_;
+            if (mod[SED]) { // overshoot
+                
+                console.log('overshoot');
+                
+                while ( (mod_ = DL.add(mod, dlb))[SED] ) {
+                    cr--;
+                    mod = mod_;
+                }
+            } else {
+                
+                console.log('undershoot');
+                
+                while (! (mod_ = DL.sub(mod, dlb))[SED]) {
+                    cr++;
+                    mod = mod_;
+                }
             }
             revRes.push(cr);
             
@@ -370,7 +385,7 @@ const {
     }
     
     DL.idiv = function (dla, dlb) {
-        const isNeg = (dla[SED] != dlb[SED]);
+        const isNeg = (!dla[SED] != !dlb[SED]);
         dla = this.abs(dla);
         dlb = this.abs(dlb);
         const cmp = DL.cmp(dla, dlb);
@@ -383,7 +398,7 @@ const {
                 resultDL = [0];
                 break;
             default:
-                resultDL = ALGO.longDiv(dla, dlb);
+                resultDL = ALGO.longDivSub(dla, dlb);
         }
         return isNeg ? this.sub([0], resultDL) : resultDL;
     }
