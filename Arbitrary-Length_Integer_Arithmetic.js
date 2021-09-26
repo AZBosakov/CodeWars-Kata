@@ -20,6 +20,12 @@ const {
     
     const SED = Symbol.for('sign_extension_digit');
     
+    /**
+     * Number strings are parsed as {sign: +/-1, digits: ..., exp:...}
+     * .digits is trimmed from leading/trailing 0s, the count of the
+     * trailing 0s i added to .exp. If the digits are only 0s,
+     * the number is parsed as {sign: 0, digits: '0', exp: 0}
+     */
     const PF = (() => {
         const DP = '.';
         
@@ -271,7 +277,7 @@ const {
         
         let t = this.karatsuba(a$b, c$d);
         
-		const ad$bc = DL.sub(DL.sub(t, ac), bd);
+        const ad$bc = DL.sub(DL.sub(t, ac), bd);
         
         const h = DL.shift(ac, n*2);
         const m = DL.shift(ad$bc, n);
