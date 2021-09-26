@@ -14,7 +14,7 @@ const {
      * Operations act uppon arrays of digits in BASE.
      * The [SED] prop is used for sign extension in BASE-complement add/subtract.
      */
-    const LOG_BASE = 1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
+    const LOG_BASE = 6;//1;//6; // x*10^6 * y*10^6 < 15 digits precision of the JS MAX_SAFE_INTEGER
     const BASE = 10**LOG_BASE;
     const N_NINES = BASE - 1;
     
@@ -345,31 +345,16 @@ const {
                 modMSDs = modMSDs * BASE + mod[mod.length - 2];
             }
             let cr = Math.floor(modMSDs / dvsrMSD);
-                
-            console.log('mod', mod);
-            console.log(cr);
-            
             if (cr) {
-                const modMul = DL.mul(mod, [cr % BASE, Math.floor(cr / BASE)]);
-                
-                console.log('modMul', modMul);
-                
+                const modMul = DL.mul(dlb, [cr % BASE, Math.floor(cr / BASE)]);
                 mod = DL.sub(mod, modMul);
-                
-                console.log('mod', mod);
             }
             if (mod[SED]) { // overshoot
-                
-                console.log('overshoot');
-                
-                while ( (mod_ = DL.add(mod, dlb))[SED] ) {
+                while ( (mod = DL.add(mod, dlb))[SED] ) {
                     cr--;
-                    mod = mod_;
                 }
+                cr--;
             } else {
-                
-                console.log('undershoot');
-                
                 while (! (mod_ = DL.sub(mod, dlb))[SED]) {
                     cr++;
                     mod = mod_;
@@ -398,7 +383,7 @@ const {
                 resultDL = [0];
                 break;
             default:
-                resultDL = ALGO.longDivSub(dla, dlb);
+                resultDL = ALGO.longDivMul(dla, dlb);
         }
         return isNeg ? this.sub([0], resultDL) : resultDL;
     }
