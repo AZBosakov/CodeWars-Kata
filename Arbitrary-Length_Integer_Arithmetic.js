@@ -304,33 +304,6 @@ const {
     }
     
     // Works on absolute values
-    // Uses repeated subtraction, SLOW with big bases
-    ALGO.longDivSub = (dla, dlb) => {
-        dla = DL.abs(dla);
-        dlb = DL.abs(dlb);
-        let i = dla.length - dlb.length;
-        
-        let mod = dla.slice(i);
-        if (DL.cmp(mod, dlb) < 0) mod.unshift(dla[--i]);
-        let mod_ = mod;
-        const revRes = [];
-                
-        while (true) {
-            let cr = 0;
-            while (! (mod_ = DL.sub(mod, dlb))[SED]) {
-                cr++;
-                mod = mod_;
-            }
-            revRes.push(cr);
-            
-            if (!i) return revRes.reverse();
-            
-            mod.unshift(dla[i - 1]);
-            i--;
-        }
-    }
-    
-    // Works on absolute values
     ALGO.longDivMul = (dla, dlb) => {
         dla = DL.abs(dla);
         dlb = DL.abs(dlb);
