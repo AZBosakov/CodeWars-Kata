@@ -62,7 +62,7 @@ const sqGridContours = (() => {
             row += rel[0];
             col += rel[1];
             if (
-                row < 0 || row >= GRID.length || col < 0 || col > GRID[row].length
+                row < 0 || row >= GRID.length || col < 0 || col >= GRID[row].length
             ) return 0;
             return GRID[row][col];
         }
